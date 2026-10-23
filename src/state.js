@@ -200,9 +200,41 @@ class StateStore {
       localStorage.setItem(STORAGE_KEYS.CUSTOMERS, JSON.stringify(this.customers));
       localStorage.setItem(STORAGE_KEYS.WORKERS, JSON.stringify(this.workers));
       localStorage.setItem(STORAGE_KEYS.DRIVERS, JSON.stringify(this.drivers));
+      localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(this.notifications));
     } catch (e) {
       console.warn("LocalStorage save warning:", e);
     }
+  }
+
+  getUnreadNotificationCount() {
+    if (!this.notifications) return 0;
+    return this.notifications.filter(n => n.unread).length;
+  }
+
+  markNotificationRead(id) {
+    if (!this.notifications) return;
+    this.notifications = this.notifications.map(n => n.id === id ? { ...n, unread: false } : n);
+    this.notify();
+  }
+
+  markAllNotificationsRead() {
+    if (!this.notifications) return;
+    this.notifications = this.notifications.map(n => ({ ...n, unread: false }));
+    this.showToast('All notifications marked as read', 'success');
+    this.notify();
+  }
+
+  deleteNotification(id) {
+    if (!this.notifications) return;
+    this.notifications = this.notifications.filter(n => n.id !== id);
+    this.showToast('Notification removed', 'info');
+    this.notify();
+  }
+
+  clearAllNotifications() {
+    this.notifications = [];
+    this.showToast('All notifications cleared', 'info');
+    this.notify();
   }
 
   showToast(message, type = 'success') {

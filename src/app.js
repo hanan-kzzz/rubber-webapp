@@ -7,6 +7,7 @@ import { renderIncomePage, attachIncomePageEvents } from './components/incomePag
 import { renderExpenseEmployeesPage, attachExpenseEmployeesPageEvents, expenseEmployeesState, setExpenseEmployeesSubTab } from './components/expenseEmployeesPage.js';
 import { renderCustomerPage, attachCustomerPageEvents, customerPageState } from './components/customerPage.js';
 import { renderCfoHub, attachCfoEvents } from './components/cfoHub.js';
+import { renderNotificationPage, attachNotificationPageEvents } from './components/notificationPage.js';
 import { renderQuickActionsModal, renderAddEmployeeModal, renderAddBuyerModal, attachQuickActionsEvents } from './components/quickActionsModal.js';
 import { renderSearchModulesModal, attachSearchModulesEvents } from './components/searchModulesModal.js';
 import { renderInstallModal, attachInstallModalEvents, initInstallPrompt } from './components/installModal.js';
@@ -160,6 +161,7 @@ export function renderApp() {
           ${activeTab === 'expenses' || activeTab === 'wages' || activeTab === 'employees' || activeTab === 'ledger' ? renderExpenseEmployeesPage() : ''}
           ${activeTab === 'dues' || activeTab === 'customers' ? renderCustomerPage() : ''}
           ${activeTab === 'cfo' ? renderCfoHub() : ''}
+          ${activeTab === 'notifications' ? renderNotificationPage() : ''}
         </main>
 
         <!-- Search Modules Modal Dialog -->
@@ -195,6 +197,7 @@ export function renderApp() {
   if (activeTab === 'expenses' || activeTab === 'wages' || activeTab === 'employees' || activeTab === 'ledger') attachExpenseEmployeesPageEvents();
   if (activeTab === 'dues' || activeTab === 'customers') attachCustomerPageEvents();
   if (activeTab === 'cfo') attachCfoEvents();
+  if (activeTab === 'notifications') attachNotificationPageEvents();
 
   // Desktop Frame Toggle
   const toggleFrameBtn = document.getElementById('btn-toggle-device-frame');
@@ -231,7 +234,7 @@ export function renderApp() {
 // Hash-based URL navigation for separate tall pages
 function syncTabFromHash() {
   const hash = window.location.hash.replace('#', '').trim();
-  const validTabs = ['dashboard', 'income', 'expenses', 'wages', 'employees', 'ledger', 'dues', 'customers', 'cfo'];
+  const validTabs = ['dashboard', 'income', 'expenses', 'wages', 'employees', 'ledger', 'dues', 'customers', 'cfo', 'notifications'];
   if (hash && validTabs.includes(hash)) {
     if (hash === 'wages' || hash === 'employees') {
       setExpenseEmployeesSubTab('employees');

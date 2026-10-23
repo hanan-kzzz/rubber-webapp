@@ -16,10 +16,12 @@ export function renderHeader() {
     dues: 'Customers',
     customers: 'Customers',
     cfo: 'Settings & AI CFO',
+    notifications: 'Notifications',
   };
 
   const currentTitle = titles[activeTab] || 'Home';
   const isHome = activeTab === 'dashboard';
+  const unreadNotifs = store.getUnreadNotificationCount ? store.getUnreadNotificationCount() : 0;
 
   // Completely hide header on focused wage entry page
   if (activeTab === 'wages' && store.wageSubView === 'add_wage') {
@@ -92,13 +94,17 @@ export function renderHeader() {
 
         <button
           id="btn-header-bell"
-          class="w-10 h-10 rounded-full bg-white border border-slate-200/80 shadow-xs flex items-center justify-center text-slate-700 hover:bg-slate-50 active:scale-95 transition-all relative shrink-0"
-          title="${totalReceivables > 0 ? `₹${totalReceivables.toLocaleString('en-IN')} pending dues` : 'Notifications'}"
+          class="w-10 h-10 rounded-full bg-white border border-slate-200/80 shadow-xs flex items-center justify-center text-slate-700 hover:bg-slate-50 active:scale-95 transition-all relative shrink-0 cursor-pointer ${
+            activeTab === 'notifications' ? 'ring-2 ring-slate-900 bg-slate-50' : ''
+          }"
+          title="${unreadNotifs > 0 ? `${unreadNotifs} unread alerts` : 'Notifications'}"
           aria-label="Notifications"
         >
           ${icons.bell("w-4 h-4 text-slate-700")}
-          ${totalReceivables > 0 ? `
-            <span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#84cc16] ring-2 ring-white"></span>
+          ${unreadNotifs > 0 ? `
+            <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white shadow-2xs animate-pulse">
+              ${unreadNotifs}
+            </span>
           ` : ''}
         </button>
       </div>
@@ -135,6 +141,6 @@ export function attachHeaderEvents() {
 
   const bellBtn = document.getElementById('btn-header-bell');
   if (bellBtn) {
-    bellBtn.onclick = () => store.setActiveTab('dues');
+    bellBtn.onclick = () => store.setActiveTab('notifications');
   }
 }
