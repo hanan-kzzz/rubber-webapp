@@ -116,6 +116,21 @@ const BASE_MODULES = [
       store.setActiveTab('cfo');
     }
   },
+  {
+    id: 'module-notifications',
+    type: 'pages',
+    title: 'Notification Center',
+    subtitle: 'Real-time alerts, buyer overdue dues, crew wages & lab DRC grade certifications',
+    category: 'Core Page',
+    badge: 'PAGE',
+    badgeClass: 'bg-rose-50 text-rose-700 border-rose-200',
+    iconBg: 'bg-rose-600 text-white',
+    icon: (cls) => icons.bell(cls),
+    keywords: ['notifications', 'alerts', 'notices', 'bell', 'unread', 'updates', 'reminders', 'dues alerts', 'wage notices'],
+    action: () => {
+      store.setActiveTab('notifications');
+    }
+  },
 
   // 2. Direct Actions & Tools
   {
