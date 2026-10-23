@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+  }
+
+  body {
+    background-color: #f8fafc;
+    color: #0f172a;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    overscroll-behavior-y: contain;
+  }
+
+  input, textarea, select {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  .font-mono-numbers {
+    font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    font-feature-settings: "tnum" 1, "zero" 1;
+  }
+
+  .font-display {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.03em;
+  }
+}
+
+/* Minimalist Clean Light Surfaces */
+.minimal-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.75);
+  box-shadow: 0 2px 14px -2px rgba(15, 23, 42, 0.04);
+}
+
+.minimal-card-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.minimal-card-hover:active {
+  transform: scale(0.98);
+}
+
+/* Soft Sunrise / Peach-Coral Mesh Gradient Hero Card (Phone 2 Aesthetic) */
+.card-mesh-peach {
+  background: radial-gradient(110% 120% at 90% 10%, rgba(254, 215, 170, 0.85) 0%, rgba(254, 205, 211, 0.7) 45%, rgba(255, 237, 213, 0.95) 100%),
+              linear-gradient(135deg, #fff1f2 0%, #fed7aa 50%, #fecdd3 100%);
+  color: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 16px 36px -10px rgba(251, 146, 60, 0.2),
+              0 4px 12px -2px rgba(15, 23, 42, 0.04),
+              inset 0 1px 2px 0 rgba(255, 255, 255, 0.95);
+}
+
+/* Soft 4-Color Category Tiles (Phone 3 2x2 Aesthetic) */
+.card-tile-lime {
+  background: radial-gradient(120% 120% at 15% 15%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 65%),
+              linear-gradient(135deg, #f7fee7 0%, #ecfccb 45%, #d9f99d 100%);
+  color: #1a2e05;
+  border: 1px solid rgba(217, 249, 157, 0.65);
+  box-shadow: 0 8px 20px -6px rgba(163, 230, 53, 0.18),
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.card-tile-coral {
+  background: radial-gradient(120% 120% at 15% 15%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 65%),
+              linear-gradient(135deg, #fff1f2 0%, #ffe4e6 45%, #fecdd3 100%);
+  color: #881337;
+  border: 1px solid rgba(254, 205, 211, 0.65);
+  box-shadow: 0 8px 20px -6px rgba(244, 63, 94, 0.16),
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.card-tile-blue {
+  background: radial-gradient(120% 120% at 15% 15%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 65%),
+              linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 45%, #bae6fd 100%);
+  color: #0c4a6e;
+  border: 1px solid rgba(186, 230, 253, 0.65);
+  box-shadow: 0 8px 20px -6px rgba(56, 189, 248, 0.16),
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.card-tile-purple {
+  background: radial-gradient(120% 120% at 15% 15%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 65%),
+              linear-gradient(135deg, #faf5ff 0%, #f3e8ff 45%, #e9d5ff 100%);
+  color: #581c87;
+  border: 1px solid rgba(233, 213, 255, 0.65);
+  box-shadow: 0 8px 20px -6px rgba(168, 85, 247, 0.16),
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Premium Lime Green Fintech Card (Rubber Pass / Metallic Satin Finish) */
+.lime-card-gradient {
+  background: radial-gradient(130% 120% at 85% 15%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 55%),
+              linear-gradient(135deg, #dcfce7 0%, #d9f99d 25%, #bef264 65%, #a3e635 100%);
+  color: #1a2e05;
+  box-shadow: 0 16px 35px -8px rgba(132, 204, 22, 0.38),
+              0 4px 12px -2px rgba(26, 46, 5, 0.08),
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.8),
+              inset 0 -2px 4px 0 rgba(26, 46, 5, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Premium Amber Fintech Card (Worker Wages Pass) */
+.amber-card-gradient {
+  background: radial-gradient(130% 120% at 85% 15%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 55%),
+              linear-gradient(135deg, #fef3c7 0%, #fde68a 30%, #f59e0b 75%, #d97706 100%);
+  color: #451a03;
+  box-shadow: 0 16px 35px -8px rgba(245, 158, 11, 0.38),
+              0 4px 12px -2px rgba(69, 26, 3, 0.08),
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.8),
+              inset 0 -2px 4px 0 rgba(69, 26, 3, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Bottom Dock */
+.minimal-dock {
+  background: #18181b;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.35);
+}
+
+/* Hide scrollbars for clean touch experience */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Safe area utilities */
+.pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
+}
+
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top, 0px), 12px);
+}
+
+/* Touch active feedback */
+.touch-press:active {
+  transform: scale(0.96);
+  transition: transform 0.1s ease;
+}
+
+/* Modal active background scroll lock - blocks background movement */
+html.modal-open,
+body.modal-open {
+  overflow: hidden !important;
+  touch-action: none !important;
+  overscroll-behavior: none !important;
+  height: 100% !important;
+}
+
+body.modal-open #main-viewport {
+  overflow: hidden !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  touch-action: none !important;
+}

@@ -1,0 +1,41 @@
+{
+  "name": "RubberFlow Mobile",
+  "short_name": "RubberFlow",
+  "description": "Mobile PWA for Rubber Estate & Business Accounting, Daily Sales, Worker Wages, and Receivables Hub",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0e17",
+  "theme_color": "#0a0e17",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "finance", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Add Quick Entry",
+      "short_name": "Quick Entry",
+      "description": "Log sale, wage, or expense",
+      "url": "/#dashboard"
+    },
+    {
+      "name": "Customer Dues",
+      "short_name": "Dues Hub",
+      "description": "Check pending receivables",
+      "url": "/#dues"
+    }
+  ]
+}
