@@ -219,48 +219,6 @@ export function renderDashboard() {
         </div>
       ` : ''}
 
-      <!-- 2. Balanced Circular Action Buttons (Expense ↑ / Income ↓ / Wages ⇄) -->
-      <div class="grid grid-cols-3 gap-3 px-2 pt-0.5">
-        <!-- Button 1: Expense -->
-        <button
-          id="btn-quick-expense"
-          class="flex flex-col items-center space-y-2 group active:scale-95 transition-all cursor-pointer"
-        >
-          <div class="w-14 h-14 rounded-full bg-white border border-slate-200/90 shadow-[0_4px_14px_-2px_rgba(15,23,42,0.06)] flex items-center justify-center text-slate-800 group-hover:bg-slate-50 group-hover:border-slate-300 transition-all">
-            <span class="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center text-rose-800">
-              ${icons.arrowUp("w-4 h-4 stroke-[2.5]")}
-            </span>
-          </div>
-          <span class="text-xs font-extrabold text-slate-700 tracking-tight">Expense</span>
-        </button>
-
-        <!-- Button 2: Income -->
-        <button
-          id="btn-quick-income"
-          class="flex flex-col items-center space-y-2 group active:scale-95 transition-all cursor-pointer"
-        >
-          <div class="w-14 h-14 rounded-full bg-white border border-slate-200/90 shadow-[0_4px_14px_-2px_rgba(15,23,42,0.06)] flex items-center justify-center text-slate-800 group-hover:bg-slate-50 group-hover:border-slate-300 transition-all">
-            <span class="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-800">
-              ${icons.arrowDown("w-4 h-4 text-emerald-800 stroke-[2.5]")}
-            </span>
-          </div>
-          <span class="text-xs font-extrabold text-slate-700 tracking-tight">Income</span>
-        </button>
-
-        <!-- Button 3: Wages -->
-        <button
-          id="btn-quick-wages"
-          class="flex flex-col items-center space-y-2 group active:scale-95 transition-all cursor-pointer"
-        >
-          <div class="w-14 h-14 rounded-full bg-white border border-slate-200/90 shadow-[0_4px_14px_-2px_rgba(15,23,42,0.06)] flex items-center justify-center text-slate-800 group-hover:bg-slate-50 group-hover:border-slate-300 transition-all">
-            <span class="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center text-amber-800">
-              ${icons.users("w-4 h-4 text-amber-800 stroke-[2.2]")}
-            </span>
-          </div>
-          <span class="text-xs font-extrabold text-slate-700 tracking-tight">Wages</span>
-        </button>
-      </div>
-
       <!-- Quick Operations Navigation Hub (Phone 3 Soft 4-Color Category Tiles) -->
       <div class="space-y-2 pt-1">
         <div class="flex items-center justify-between px-1">
@@ -503,11 +461,6 @@ export function attachDashboardEvents() {
     installBanner.onclick = () => openInstallModal();
   }
 
-  const expenseBtn = document.getElementById('btn-quick-expense');
-  if (expenseBtn) {
-    expenseBtn.onclick = () => store.setActiveTab('expenses');
-  }
-
   const homeGoodsBtn = document.getElementById('btn-home-nav-goods');
   if (homeGoodsBtn) {
     homeGoodsBtn.onclick = () => {
@@ -538,16 +491,6 @@ export function attachDashboardEvents() {
   const homeCustBtn = document.getElementById('btn-home-nav-customers');
   if (homeCustBtn) {
     homeCustBtn.onclick = () => store.setActiveTab('customers');
-  }
-
-  const incomeBtn = document.getElementById('btn-quick-income');
-  if (incomeBtn) {
-    incomeBtn.onclick = () => store.setActiveTab('income');
-  }
-
-  const wagesBtn = document.getElementById('btn-quick-wages');
-  if (wagesBtn) {
-    wagesBtn.onclick = () => store.setActiveTab('wages');
   }
 
   const viewAllBtn = document.getElementById('btn-view-all-transfers');
