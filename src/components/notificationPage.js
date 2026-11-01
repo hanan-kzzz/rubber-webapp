@@ -30,9 +30,9 @@ export function renderNotificationPage() {
   });
 
   return `
-    <div class="space-y-4 pb-8 pt-1 animate-fade-in">
+    <div class="space-y-4 pb-8 pt-1 page-view-enter">
       <!-- 1. Soft Sunrise / Peach-Coral Mesh Hero Card (Phone 2 Aesthetic) -->
-      <div class="rounded-[28px] card-mesh-peach p-5 relative overflow-hidden select-none transition-all duration-300">
+      <div class="rounded-[28px] card-mesh-peach hero-mesh-animate card-hover-lift p-5 relative overflow-hidden select-none transition-all duration-300">
         <!-- Top Row: Label + Unread Status Pill -->
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-700/80">
@@ -79,111 +79,7 @@ export function renderNotificationPage() {
         </div>
       </div>
 
-      <!-- 2. Soft 4-Color Category Tiles (Phone 3 Aesthetic) -->
-      <div>
-        <div class="flex items-center justify-between px-1 mb-2">
-          <span class="text-[11px] font-black text-slate-400 uppercase tracking-wider">
-            Alert Categories
-          </span>
-          ${notificationPageState.activeFilter !== 'all' ? `
-            <button id="btn-reset-notif-filter" class="text-[11px] font-bold text-rose-600 hover:underline cursor-pointer">
-              Show All
-            </button>
-          ` : ''}
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <!-- Tile 1: All Alerts (Lime Gradient) -->
-          <div
-            data-notiffilter="all"
-            class="btn-nav-notif p-4 rounded-3xl transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[105px] card-tile-lime ${
-              notificationPageState.activeFilter === 'all' ? 'ring-2 ring-slate-900 shadow-md scale-[1.02]' : 'hover:scale-[1.01]'
-            }"
-          >
-            <div class="flex items-start justify-between">
-              <div class="w-10 h-10 rounded-2xl bg-white/80 text-lime-900 flex items-center justify-center font-bold shadow-2xs shrink-0">
-                ${icons.bell("w-5 h-5")}
-              </div>
-              <span class="text-[10px] font-black text-lime-900/70 uppercase">Overview</span>
-            </div>
-            <div class="mt-2.5">
-              <span class="text-xs font-black tracking-tight block text-lime-950">All Alerts</span>
-              <div class="flex items-baseline justify-between mt-0.5">
-                <span class="text-base font-black font-display tracking-tight text-lime-950">${notifications.length}</span>
-                <span class="text-[10px] text-lime-900/75 font-semibold">${unreadCount} unread</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tile 2: Buyer Dues (Coral Gradient) -->
-          <div
-            data-notiffilter="dues"
-            class="btn-nav-notif p-4 rounded-3xl transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[105px] card-tile-coral ${
-              notificationPageState.activeFilter === 'dues' ? 'ring-2 ring-slate-900 shadow-md scale-[1.02]' : 'hover:scale-[1.01]'
-            }"
-          >
-            <div class="flex items-start justify-between">
-              <div class="w-10 h-10 rounded-2xl bg-white/80 text-rose-900 flex items-center justify-center font-bold shadow-2xs shrink-0">
-                ${icons.alertCircle("w-5 h-5")}
-              </div>
-              <span class="text-[10px] font-black text-rose-900/70 uppercase">Overdue</span>
-            </div>
-            <div class="mt-2.5">
-              <span class="text-xs font-black tracking-tight block text-rose-950">Buyer Dues</span>
-              <div class="flex items-baseline justify-between mt-0.5">
-                <span class="text-base font-black font-display tracking-tight text-rose-950">${duesCount}</span>
-                <span class="text-[10px] text-rose-900/75 font-semibold">Payment</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tile 3: Workforce Wages (Sky/Blue Gradient) -->
-          <div
-            data-notiffilter="wages"
-            class="btn-nav-notif p-4 rounded-3xl transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[105px] card-tile-blue ${
-              notificationPageState.activeFilter === 'wages' ? 'ring-2 ring-slate-900 shadow-md scale-[1.02]' : 'hover:scale-[1.01]'
-            }"
-          >
-            <div class="flex items-start justify-between">
-              <div class="w-10 h-10 rounded-2xl bg-white/80 text-sky-900 flex items-center justify-center font-bold shadow-2xs shrink-0">
-                ${icons.users("w-5 h-5")}
-              </div>
-              <span class="text-[10px] font-black text-sky-900/70 uppercase">Crew</span>
-            </div>
-            <div class="mt-2.5">
-              <span class="text-xs font-black tracking-tight block text-sky-950">Wage Payouts</span>
-              <div class="flex items-baseline justify-between mt-0.5">
-                <span class="text-base font-black font-display tracking-tight text-sky-950">${wagesCount}</span>
-                <span class="text-[10px] text-sky-900/75 font-semibold">Disbursals</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tile 4: System & Quality (Purple Gradient) -->
-          <div
-            data-notiffilter="system"
-            class="btn-nav-notif p-4 rounded-3xl transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[105px] card-tile-purple ${
-              notificationPageState.activeFilter === 'system' ? 'ring-2 ring-slate-900 shadow-md scale-[1.02]' : 'hover:scale-[1.01]'
-            }"
-          >
-            <div class="flex items-start justify-between">
-              <div class="w-10 h-10 rounded-2xl bg-white/80 text-purple-900 flex items-center justify-center font-bold shadow-2xs shrink-0">
-                ${icons.leaf("w-5 h-5")}
-              </div>
-              <span class="text-[10px] font-black text-purple-900/70 uppercase">DRC & Tech</span>
-            </div>
-            <div class="mt-2.5">
-              <span class="text-xs font-black tracking-tight block text-purple-950">Quality & System</span>
-              <div class="flex items-baseline justify-between mt-0.5">
-                <span class="text-base font-black font-display tracking-tight text-purple-950">${systemCount}</span>
-                <span class="text-[10px] text-purple-900/75 font-semibold">Advisories</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. Filter Navigation Quick Pills -->
+      <!-- 2. Filter Navigation Quick Pills -->
       <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-1">
         ${[
           { id: 'all', label: `All (${notifications.length})` },
@@ -205,7 +101,7 @@ export function renderNotificationPage() {
         `).join('')}
       </div>
 
-      <!-- 4. Notification Items Feed -->
+      <!-- 3. Notification Items Feed -->
       <div class="space-y-3 pt-1">
         ${filteredNotifs.length === 0 ? `
           <div class="rounded-3xl bg-white p-8 border border-slate-100 text-center space-y-3 shadow-2xs">
@@ -251,7 +147,7 @@ export function renderNotificationPage() {
           return `
             <div 
               data-notifid="${n.id}"
-              class="item-notification rounded-3xl p-4.5 transition-all duration-200 relative select-none border ${
+              class="item-notification rounded-3xl p-4.5 transition-all duration-200 relative select-none border stagger-item card-hover-lift ${
                 n.unread
                   ? 'bg-white border-slate-200/90 shadow-xs'
                   : 'bg-slate-50/70 border-slate-200/50 opacity-90'
@@ -422,18 +318,18 @@ export function attachNotificationPageEvents() {
       if (notifId) store.markNotificationRead(notifId);
 
       if (actType === 'navigate_customer') {
-        store.setActiveTab('customers');
         if (actId) {
-          setTimeout(() => openCustomerProfile(actId), 50);
+          store.viewCustomer(actId);
+        } else {
+          store.setActiveTab('customers');
         }
       } else if (actType === 'navigate_wages') {
-        setExpenseEmployeesSubTab('employees');
-        store.setActiveTab('expenses');
         if (actId) {
-          setTimeout(() => openAddWageForWorker(actId), 50);
+          store.viewWorker(actId);
+        } else {
+          store.setActiveTab('employees');
         }
       } else if (actType === 'navigate_expenses') {
-        setExpenseEmployeesSubTab('expenses');
         store.setActiveTab('expenses');
       } else if (actType === 'view_transaction') {
         const txn = store.transactions.find(t => t.id === actId);

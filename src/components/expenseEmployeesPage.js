@@ -83,6 +83,12 @@ const WAGE_TASKS = [
 export function setExpenseEmployeesSubTab(tab) {
   if (tab === 'expenses' || tab === 'employees') {
     expenseEmployeesState.currentSubTab = tab;
+    store.activeTab = tab;
+    try {
+      window.history.pushState(null, '', `#${tab}`);
+    } catch {
+      window.location.hash = `#${tab}`;
+    }
     store.notify();
   }
 }
@@ -138,10 +144,15 @@ export function closeWagePayoutModal() {
 }
 
 export function renderExpenseEmployeesPage() {
+  if (store.activeTab === 'expenses' || store.activeTab === 'ledger') {
+    expenseEmployeesState.currentSubTab = 'expenses';
+  } else if (store.activeTab === 'employees' || store.activeTab === 'wages') {
+    expenseEmployeesState.currentSubTab = 'employees';
+  }
   const { currentSubTab } = expenseEmployeesState;
 
   return `
-    <div class="space-y-4 pb-8 pt-1 animate-fade-in">
+    <div class="space-y-4 pb-8 pt-1 page-view-enter">
       <!-- 1. Top Unified Segmented Switcher (Expenses vs Employees) -->
       <div class="flex items-center justify-center p-1 rounded-full bg-slate-200/80 max-w-[340px] mx-auto shadow-inner">
         <button
@@ -171,15 +182,6 @@ export function renderExpenseEmployeesPage() {
 
       <!-- 2. Conditional Section View -->
       ${currentSubTab === 'expenses' ? renderExpensesSection() : renderEmployeesSection()}
-
-      <!-- Log Expense Modal Drawer -->
-      ${expenseEmployeesState.isKeypadOpen ? renderExpenseKeypadDrawer() : ''}
-
-      <!-- Worker Profile Drawer -->
-      ${expenseEmployeesState.selectedWorkerProfile ? renderWorkerProfileModal(expenseEmployeesState.selectedWorkerProfile) : ''}
-
-      <!-- Wage Payout Flow Modal -->
-      ${expenseEmployeesState.isPayingWage ? renderWagePayoutModal() : ''}
     </div>
   `;
 }
@@ -215,7 +217,7 @@ function renderExpensesSection() {
   return `
     <div class="space-y-4">
       <!-- 1. Soft Sunrise / Peach-Coral Mesh Hero Card (Phone 2 Aesthetic) -->
-      <div class="rounded-[28px] card-mesh-peach p-5 relative overflow-hidden select-none transition-all duration-300">
+      <div class="rounded-[28px] card-mesh-peach hero-mesh-animate card-hover-lift p-5 relative overflow-hidden select-none transition-all duration-300">
         <!-- Top Row: Label + Outflows Pill Badge -->
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-700/80">
@@ -385,7 +387,7 @@ function renderExpensesSection() {
           }
 
           return `
-            <div class="p-3.5 rounded-2xl bg-white border border-slate-100 hover:border-slate-200 flex items-center justify-between shadow-2xs transition-all">
+            <div class="p-3.5 rounded-2xl bg-white border border-slate-100 hover:border-slate-200 flex items-center justify-between shadow-2xs transition-all stagger-item card-hover-lift">
               <div class="flex items-center space-x-3.5 min-w-0">
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 border ${iconClass}">
                   ${catIcon}
@@ -423,7 +425,7 @@ function renderExpensesSection() {
 /* ==========================================================================
    LOG EXPENSE DRAWER / MODAL (WITH TOUCH KEYPAD)
    ========================================================================== */
-function renderExpenseKeypadDrawer() {
+export function renderExpenseKeypadDrawer() {
   const fastAmounts = ['200', '500', '1000', '2500', '5000'];
   const keypadKeys = [
     ['1', '2', '3'],
@@ -433,7 +435,7 @@ function renderExpenseKeypadDrawer() {
   ];
 
   return `
-    <div id="expense-keypad-backdrop" class="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs animate-fade-in" style="touch-action: none;">
+    <div id="expense-keypad-backdrop" class="fixed inset-0 z-[60] flex items-end justify-center bg-slate-900/60 backdrop-blur-sm animate-fade-in" style="touch-action: none;">
       <div id="expense-keypad-sheet" class="relative w-full max-w-md max-h-[90vh] bg-white rounded-t-[36px] overflow-hidden flex flex-col z-10 animate-slide-up shadow-2xl pointer-events-auto overscroll-contain" style="padding-bottom: max(env(safe-area-inset-bottom, 0px), 20px); touch-action: pan-y; overscroll-behavior: contain;">
         <!-- Drag Handle Indicator -->
         <div class="pt-3 pb-1 flex justify-center items-center cursor-grab">
@@ -587,7 +589,7 @@ function renderEmployeesSection() {
   return `
     <div class="space-y-4">
       <!-- 1. Workforce Banner Card (Phone 2 Minimal Sunrise Card) -->
-      <div class="rounded-[28px] card-mesh-peach p-5 relative overflow-hidden select-none transition-all duration-300">
+      <div class="rounded-[28px] card-mesh-peach hero-mesh-animate card-hover-lift p-5 relative overflow-hidden select-none transition-all duration-300">
         <!-- Top Row: Label + Pill Badge -->
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-700/80">
@@ -687,13 +689,17 @@ function renderWorkerRosterList(workers) {
 
       <!-- Worker Cards Feed -->
       <div class="space-y-2.5">
-        ${workers.map((w) => {
+        ${workers.length === 0 ? `
+          <div class="p-8 text-center rounded-2xl bg-white border border-slate-100 text-slate-400 text-xs">
+            No employees registered yet. Tap "Register New Employee" above to add one.
+          </div>
+        ` : workers.map((w) => {
           const totalPaid = store.getWorkerTotalPaid(w.id, w.name);
           const initials = w.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
           const cleanPhone = w.phone ? w.phone.replace(/[^0-9]/g, '') : '';
 
           return `
-            <div class="p-4 rounded-2xl bg-white border border-slate-100 hover:border-slate-200 shadow-2xs space-y-3 transition-all">
+            <div class="p-4 rounded-2xl bg-white border border-slate-100 hover:border-slate-200 shadow-2xs space-y-3 transition-all stagger-item card-hover-lift">
               <div class="flex items-center justify-between cursor-pointer card-worker-header" data-workerid="${w.id}">
                 <div class="flex items-center space-x-3 min-w-0">
                   <div class="w-11 h-11 rounded-2xl bg-amber-100/70 border border-amber-200 text-amber-950 flex items-center justify-center font-black text-xs shrink-0">
@@ -794,14 +800,14 @@ function renderWageHistoryList(wageTxns) {
   `;
 }
 
-function renderWorkerProfileModal(w) {
+export function renderWorkerProfileModal(w) {
   const workerTxns = store.transactions.filter(
     (t) => t.category === 'Staff Wages' && (t.workerId === w.id || t.worker === w.name || t.notes?.includes(w.name))
   );
   const totalPaid = store.getWorkerTotalPaid(w.id, w.name);
 
   return `
-    <div id="worker-profile-backdrop" class="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/60 backdrop-blur-xs animate-fade-in" style="touch-action: none;">
+    <div id="worker-profile-backdrop" class="fixed inset-0 z-[60] flex items-end md:items-center justify-center p-0 md:p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in" style="touch-action: none;">
       <div class="relative w-full max-w-sm bg-white rounded-t-[32px] md:rounded-[32px] p-6 border border-slate-100 shadow-2xl animate-slide-up max-h-[90vh] overflow-y-auto no-scrollbar pointer-events-auto overscroll-contain" style="touch-action: pan-y; overscroll-behavior: contain;">
         <!-- Drag Handle for Mobile -->
         <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4 md:hidden"></div>
@@ -901,12 +907,12 @@ function renderWorkerProfileModal(w) {
   `;
 }
 
-function renderWagePayoutModal() {
+export function renderWagePayoutModal() {
   const { wageStep, selectedWorkerId, wageAmount, selectedTask, wagePaymentMode } = expenseEmployeesState;
   const worker = store.workers.find(w => w.id === selectedWorkerId);
 
   return `
-    <div id="wage-payout-backdrop" class="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs animate-fade-in" style="touch-action: none;">
+    <div id="wage-payout-backdrop" class="fixed inset-0 z-[60] flex items-end justify-center bg-slate-900/60 backdrop-blur-sm animate-fade-in" style="touch-action: none;">
       <div id="wage-payout-sheet" class="relative w-full max-w-md max-h-[85vh] bg-white rounded-t-[36px] overflow-hidden flex flex-col z-10 animate-slide-up shadow-2xl pointer-events-auto overscroll-contain" style="padding-bottom: max(env(safe-area-inset-bottom, 0px), 20px); touch-action: pan-y; overscroll-behavior: contain;">
         <div class="pt-3 pb-1 flex justify-center items-center cursor-grab">
           <div class="w-12 h-1.5 rounded-full bg-slate-200"></div>
@@ -970,25 +976,6 @@ function renderWagePayoutModal() {
                 </button>
               </div>
 
-              <!-- Task Chips -->
-              <div class="space-y-1.5">
-                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">Assigned Task</span>
-                <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5">
-                  ${WAGE_TASKS.map(task => `
-                    <button
-                      data-taskname="${task}"
-                      class="btn-pick-wage-task px-3 py-1.5 rounded-full text-xs font-bold border transition-all whitespace-nowrap cursor-pointer ${
-                        selectedTask === task
-                          ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                          : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                      }"
-                    >
-                      ${task}
-                    </button>
-                  `).join('')}
-                </div>
-              </div>
-
               <!-- Amount Input -->
               <div class="space-y-1.5">
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider" for="input-wage-amount-val">
@@ -1038,9 +1025,9 @@ function renderWagePayoutModal() {
               <div class="pt-2">
                 <button
                   id="btn-confirm-wage-disbursement"
-                  class="w-full py-4 rounded-full bg-slate-900 hover:bg-black text-white text-xs font-black shadow-lg shadow-zinc-900/20 active:scale-98 transition-all flex items-center justify-center space-x-2 cursor-pointer"
+                  class="w-full py-4 rounded-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-black shadow-lg shadow-emerald-600/25 active:scale-98 transition-all flex items-center justify-center space-x-2 cursor-pointer"
                 >
-                  ${icons.checkCircle("w-4 h-4 text-emerald-400")}
+                  ${icons.checkCircle("w-4 h-4 text-white")}
                   <span>Confirm Wage Payout of ₹${Number(wageAmount || 0).toLocaleString('en-IN')}</span>
                 </button>
               </div>
@@ -1131,7 +1118,8 @@ export function attachExpenseEmployeesPageEvents() {
 
     // Delete Expense Entry
     document.querySelectorAll('.btn-del-expense-txn').forEach((btn) => {
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         const tid = btn.getAttribute('data-del-txnid');
         if (tid) {
           store.openConfirmModal({
@@ -1140,9 +1128,8 @@ export function attachExpenseEmployeesPageEvents() {
             confirmText: 'Delete',
             isDanger: true,
             onConfirm: () => {
-              store.transactions = store.transactions.filter(t => t.id !== tid);
+              store.deleteTransaction(tid);
               store.closeConfirmModal();
-              store.showToast('Expense entry deleted');
             }
           });
         }
@@ -1154,164 +1141,7 @@ export function attachExpenseEmployeesPageEvents() {
      LOG EXPENSE KEYPAD DRAWER EVENT HANDLERS
      ------------------------------------------------------------------------- */
   if (expenseEmployeesState.isKeypadOpen) {
-    const backdrop = document.getElementById('expense-keypad-backdrop');
-    const closeBtn = document.getElementById('btn-close-expense-keypad');
-    const noteInput = document.getElementById('input-exp-notes');
-    const confirmBtn = document.getElementById('btn-confirm-expense');
-
-    if (backdrop) {
-      backdrop.onclick = (e) => {
-        if (e.target === backdrop) closeExpenseKeypad();
-      };
-      backdrop.addEventListener('touchmove', (e) => {
-        if (e.target === backdrop) e.preventDefault();
-      }, { passive: false });
-    }
-
-    if (closeBtn) closeBtn.onclick = () => closeExpenseKeypad();
-
-    function updateExpenseModalUI() {
-      const displayEl = document.getElementById('display-expense-amount');
-      if (displayEl) {
-        displayEl.textContent = expenseEmployeesState.expenseAmount === '0' ? '0' : expenseEmployeesState.expenseAmount;
-      }
-
-      const confirmBtnSpan = document.querySelector('#btn-confirm-expense span');
-      if (confirmBtnSpan) {
-        const amtNum = parseFloat(expenseEmployeesState.expenseAmount);
-        const formatted = (!amtNum || amtNum <= 0)
-          ? '0'
-          : Math.floor(amtNum).toLocaleString('en-IN');
-        confirmBtnSpan.textContent = `Record Expense of ₹${formatted}`;
-      }
-
-      // Update Category Selector in Modal
-      document.querySelectorAll('.btn-select-modal-expcat').forEach((b) => {
-        const isSelected = b.getAttribute('data-modal-expcat') === expenseEmployeesState.expenseCategory;
-        if (isSelected) {
-          b.className = 'btn-select-modal-expcat px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all shrink-0 flex items-center space-x-1.5 cursor-pointer bg-slate-900 text-white shadow-xs';
-        } else {
-          b.className = 'btn-select-modal-expcat px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all shrink-0 flex items-center space-x-1.5 cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200';
-        }
-      });
-
-      // Update Fast Amount Pills
-      document.querySelectorAll('.btn-fast-exp').forEach((b) => {
-        const isMatch = b.getAttribute('data-fastexp') === expenseEmployeesState.expenseAmount;
-        if (isMatch) {
-          b.className = 'btn-fast-exp px-3 py-1 rounded-full text-[11px] font-bold font-sans transition-all active:scale-95 cursor-pointer bg-slate-900 text-white shadow-xs';
-        } else {
-          b.className = 'btn-fast-exp px-3 py-1 rounded-full text-[11px] font-bold font-sans transition-all active:scale-95 cursor-pointer bg-white border border-slate-200 hover:bg-slate-100 text-slate-700';
-        }
-      });
-
-      // Update Payment Mode
-      document.querySelectorAll('.btn-exp-mode').forEach((b) => {
-        const isMatch = b.getAttribute('data-mode') === expenseEmployeesState.expensePaymentMode;
-        if (isMatch) {
-          b.className = 'btn-exp-mode px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer bg-slate-900 text-white shadow-xs';
-        } else {
-          b.className = 'btn-exp-mode px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200';
-        }
-      });
-    }
-
-    // Category Selector in Modal
-    document.querySelectorAll('.btn-select-modal-expcat').forEach((btn) => {
-      btn.onclick = () => {
-        const cat = btn.getAttribute('data-modal-expcat');
-        if (cat) {
-          expenseEmployeesState.expenseCategory = cat;
-          updateExpenseModalUI();
-        }
-      };
-    });
-
-    // Fast Amount Pills
-    document.querySelectorAll('.btn-fast-exp').forEach((btn) => {
-      btn.onclick = () => {
-        const amt = btn.getAttribute('data-fastexp');
-        if (amt) {
-          expenseEmployeesState.expenseAmount = amt;
-          updateExpenseModalUI();
-        }
-      };
-    });
-
-    // Numeric Keypad
-    document.querySelectorAll('.exp-keypad-btn').forEach((btn) => {
-      btn.onclick = () => {
-        const key = btn.getAttribute('data-expkey');
-        let cur = expenseEmployeesState.expenseAmount;
-
-        if (key === 'backspace') {
-          if (cur.length <= 1) {
-            cur = '0';
-          } else {
-            cur = cur.slice(0, -1);
-          }
-        } else if (key === '.') {
-          if (!cur.includes('.')) {
-            cur = cur + '.';
-          }
-        } else {
-          if (cur === '0') {
-            cur = key;
-          } else {
-            cur = cur + key;
-          }
-        }
-
-        expenseEmployeesState.expenseAmount = cur;
-        updateExpenseModalUI();
-      };
-    });
-
-    // Mode Toggle
-    document.querySelectorAll('.btn-exp-mode').forEach((btn) => {
-      btn.onclick = () => {
-        const mode = btn.getAttribute('data-mode');
-        if (mode) {
-          expenseEmployeesState.expensePaymentMode = mode;
-          updateExpenseModalUI();
-        }
-      };
-    });
-
-    if (noteInput) {
-      noteInput.oninput = (e) => {
-        expenseEmployeesState.expenseNote = e.target.value;
-      };
-    }
-
-    // Confirm Expense Button
-    if (confirmBtn) {
-      confirmBtn.onclick = () => {
-        const amt = parseFloat(expenseEmployeesState.expenseAmount);
-        if (!amt || amt <= 0) {
-          store.showToast('Please enter an expense amount', 'error');
-          return;
-        }
-
-        const newTxn = {
-          id: generateTxnId('TXN-EXP'),
-          date: getTodayDate(),
-          type: 'expense',
-          category: expenseEmployeesState.expenseCategory,
-          amount: amt,
-          paymentMode: expenseEmployeesState.expensePaymentMode,
-          notes: expenseEmployeesState.expenseNote || `${expenseEmployeesState.expenseCategory} spend`,
-          createdAt: new Date().toISOString()
-        };
-
-        store.transactions.unshift(newTxn);
-        const recordedCat = expenseEmployeesState.expenseCategory;
-        expenseEmployeesState.expenseAmount = '0';
-        expenseEmployeesState.expenseNote = '';
-        closeExpenseKeypad();
-        store.showToast(`Recorded ₹${amt.toLocaleString('en-IN')} for ${recordedCat}`);
-      };
-    }
+    attachExpenseKeypadEvents();
   }
 
   /* -------------------------------------------------------------------------
@@ -1365,22 +1195,21 @@ export function attachExpenseEmployeesPageEvents() {
       };
     });
 
-    // Worker Profile Modal Open
+    // Worker Profile -> View Individual Employee Page
     document.querySelectorAll('.btn-open-worker-profile, .card-worker-header').forEach((btn) => {
       btn.onclick = (e) => {
         e.stopPropagation();
         const wid = btn.getAttribute('data-workerid');
-        const worker = store.workers.find(w => w.id === wid);
-        if (worker) {
-          expenseEmployeesState.selectedWorkerProfile = worker;
-          store.notify();
+        if (wid) {
+          store.viewWorker(wid);
         }
       };
     });
 
     // Delete Wage Entry
     document.querySelectorAll('.btn-del-wage-txn').forEach((btn) => {
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         const tid = btn.getAttribute('data-del-wageid');
         if (tid) {
           store.openConfirmModal({
@@ -1389,9 +1218,8 @@ export function attachExpenseEmployeesPageEvents() {
             confirmText: 'Delete',
             isDanger: true,
             onConfirm: () => {
-              store.transactions = store.transactions.filter(t => t.id !== tid);
+              store.deleteTransaction(tid);
               store.closeConfirmModal();
-              store.showToast('Wage payout entry deleted');
             }
           });
         }
@@ -1401,198 +1229,349 @@ export function attachExpenseEmployeesPageEvents() {
 
   // Worker Profile Modal Events
   if (expenseEmployeesState.selectedWorkerProfile) {
-    const backdrop = document.getElementById('worker-profile-backdrop');
-    const closeBtn = document.getElementById('btn-close-worker-profile');
-    const payBtn = document.getElementById('btn-modal-pay-worker');
-
-    if (backdrop) {
-      backdrop.onclick = (e) => {
-        if (e.target === backdrop) {
-          expenseEmployeesState.selectedWorkerProfile = null;
-          store.notify();
-        }
-      };
-      backdrop.addEventListener('touchmove', (e) => {
-        if (e.target === backdrop) e.preventDefault();
-      }, { passive: false });
-    }
-
-    if (closeBtn) {
-      closeBtn.onclick = () => {
-        expenseEmployeesState.selectedWorkerProfile = null;
-        store.notify();
-      };
-    }
-
-    if (payBtn) {
-      payBtn.onclick = () => {
-        const wid = payBtn.getAttribute('data-workerid');
-        expenseEmployeesState.selectedWorkerProfile = null;
-        if (wid) openAddWageForWorker(wid);
-      };
-    }
+    attachWorkerProfileModalEvents();
   }
 
   // Wage Payout Modal Events
   if (expenseEmployeesState.isPayingWage) {
-    const backdrop = document.getElementById('wage-payout-backdrop');
-    const closeBtn = document.getElementById('btn-close-wage-payout');
-    const changeWorkerBtn = document.getElementById('btn-change-wage-worker');
-    const amtInput = document.getElementById('input-wage-amount-val');
-    const confirmDisburseBtn = document.getElementById('btn-confirm-wage-disbursement');
+    attachWagePayoutEvents();
+  }
+}
 
-    if (backdrop) {
-      backdrop.onclick = (e) => {
-        if (e.target === backdrop) closeWagePayoutModal();
-      };
-      backdrop.addEventListener('touchmove', (e) => {
-        if (e.target === backdrop) e.preventDefault();
-      }, { passive: false });
+/* ==========================================================================
+   MODAL EVENT ATTACHMENT FUNCTIONS (USABLE AT ROOT IN APP.JS)
+   ========================================================================== */
+export function attachExpenseKeypadEvents() {
+  if (!expenseEmployeesState.isKeypadOpen) return;
+
+  const backdrop = document.getElementById('expense-keypad-backdrop');
+  const closeBtn = document.getElementById('btn-close-expense-keypad');
+  const noteInput = document.getElementById('input-exp-notes');
+  const confirmBtn = document.getElementById('btn-confirm-expense');
+
+  if (backdrop) {
+    backdrop.onclick = (e) => {
+      if (e.target === backdrop) closeExpenseKeypad();
+    };
+    backdrop.addEventListener('touchmove', (e) => {
+      if (e.target === backdrop) e.preventDefault();
+    }, { passive: false });
+  }
+
+  if (closeBtn) closeBtn.onclick = () => closeExpenseKeypad();
+
+  function updateExpenseModalUI() {
+    const displayEl = document.getElementById('display-expense-amount');
+    if (displayEl) {
+      displayEl.textContent = expenseEmployeesState.expenseAmount === '0' ? '0' : expenseEmployeesState.expenseAmount;
     }
 
-    if (closeBtn) closeBtn.onclick = () => closeWagePayoutModal();
-
-    if (changeWorkerBtn) {
-      changeWorkerBtn.onclick = () => {
-        expenseEmployeesState.wageStep = 1;
-        store.notify();
-      };
+    const confirmBtnSpan = document.querySelector('#btn-confirm-expense span');
+    if (confirmBtnSpan) {
+      const amtNum = parseFloat(expenseEmployeesState.expenseAmount);
+      const formatted = (!amtNum || amtNum <= 0)
+        ? '0'
+        : Math.floor(amtNum).toLocaleString('en-IN');
+      confirmBtnSpan.textContent = `Record Expense of ₹${formatted}`;
     }
 
-    // Pick Worker in Step 1
-    document.querySelectorAll('.btn-pick-worker-for-wage').forEach((btn) => {
-      btn.onclick = () => {
-        const wid = btn.getAttribute('data-selectworkerid');
-        if (wid) {
-          openAddWageForWorker(wid);
-        }
-      };
-    });
-
-    function updateWageModalUI() {
-      // Update Task Chips
-      document.querySelectorAll('.btn-pick-wage-task').forEach((b) => {
-        const isSelected = b.getAttribute('data-taskname') === expenseEmployeesState.selectedTask;
-        if (isSelected) {
-          b.className = 'btn-pick-wage-task px-3 py-1.5 rounded-full text-xs font-bold border transition-all whitespace-nowrap cursor-pointer bg-slate-900 text-white border-slate-900 shadow-xs';
-        } else {
-          b.className = 'btn-pick-wage-task px-3 py-1.5 rounded-full text-xs font-bold border transition-all whitespace-nowrap cursor-pointer bg-white text-slate-600 border-slate-200 hover:bg-slate-50';
-        }
-      });
-
-      // Update Fast Wage Pills
-      document.querySelectorAll('.btn-fast-wage-pill').forEach((b) => {
-        const isMatch = b.getAttribute('data-fastwage') === expenseEmployeesState.wageAmount;
-        if (isMatch) {
-          b.className = 'btn-fast-wage-pill px-3 py-1 rounded-full text-[11px] font-bold font-sans transition-all cursor-pointer bg-slate-900 text-white border border-slate-900 shadow-xs';
-        } else {
-          b.className = 'btn-fast-wage-pill px-3 py-1 rounded-full text-[11px] font-bold font-sans transition-all cursor-pointer bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100';
-        }
-      });
-
-      // Update Wage Payment Mode
-      document.querySelectorAll('.btn-pick-wage-mode').forEach((b) => {
-        const isMatch = b.getAttribute('data-wagemode') === expenseEmployeesState.wagePaymentMode;
-        if (isMatch) {
-          b.className = 'btn-pick-wage-mode px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer bg-slate-900 text-white shadow-xs';
-        } else {
-          b.className = 'btn-pick-wage-mode px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200';
-        }
-      });
-
-      if (amtInput && amtInput.value !== expenseEmployeesState.wageAmount) {
-        amtInput.value = expenseEmployeesState.wageAmount;
+    // Update Category Selector in Modal
+    document.querySelectorAll('.btn-select-modal-expcat').forEach((b) => {
+      const isSelected = b.getAttribute('data-modal-expcat') === expenseEmployeesState.expenseCategory;
+      if (isSelected) {
+        b.className = 'btn-select-modal-expcat px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all shrink-0 flex items-center space-x-1.5 cursor-pointer bg-slate-900 text-white shadow-xs';
+      } else {
+        b.className = 'btn-select-modal-expcat px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all shrink-0 flex items-center space-x-1.5 cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200';
       }
-    }
-
-    // Pick Task in Step 2
-    document.querySelectorAll('.btn-pick-wage-task').forEach((btn) => {
-      btn.onclick = () => {
-        const task = btn.getAttribute('data-taskname');
-        if (task) {
-          expenseEmployeesState.selectedTask = task;
-          updateWageModalUI();
-        }
-      };
     });
 
-    // Fast Wage Pills
-    document.querySelectorAll('.btn-fast-wage-pill').forEach((btn) => {
-      btn.onclick = () => {
-        const val = btn.getAttribute('data-fastwage');
-        if (val) {
-          expenseEmployeesState.wageAmount = val;
-          updateWageModalUI();
-        }
-      };
+    // Update Fast Amount Pills
+    document.querySelectorAll('.btn-fast-exp').forEach((b) => {
+      const isMatch = b.getAttribute('data-fastexp') === expenseEmployeesState.expenseAmount;
+      if (isMatch) {
+        b.className = 'btn-fast-exp px-3 py-1 rounded-full text-[11px] font-bold font-sans transition-all active:scale-95 cursor-pointer bg-slate-900 text-white shadow-xs';
+      } else {
+        b.className = 'btn-fast-exp px-3 py-1 rounded-full text-[11px] font-bold font-sans transition-all active:scale-95 cursor-pointer bg-white border border-slate-200 hover:bg-slate-100 text-slate-700';
+      }
     });
 
-    // Wage Amount Input
-    if (amtInput) {
-      amtInput.oninput = (e) => {
-        expenseEmployeesState.wageAmount = e.target.value;
-      };
-    }
+    // Update Payment Mode
+    document.querySelectorAll('.btn-exp-mode').forEach((b) => {
+      const isMatch = b.getAttribute('data-mode') === expenseEmployeesState.expensePaymentMode;
+      if (isMatch) {
+        b.className = 'btn-exp-mode px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer bg-slate-900 text-white shadow-xs';
+      } else {
+        b.className = 'btn-exp-mode px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200';
+      }
+    });
+  }
 
-    // Pick Mode
-    document.querySelectorAll('.btn-pick-wage-mode').forEach((btn) => {
-      btn.onclick = () => {
-        const mode = btn.getAttribute('data-wagemode');
-        if (mode) {
-          expenseEmployeesState.wagePaymentMode = mode;
-          updateWageModalUI();
+  // Category Selector in Modal
+  document.querySelectorAll('.btn-select-modal-expcat').forEach((btn) => {
+    btn.onclick = () => {
+      const cat = btn.getAttribute('data-modal-expcat');
+      if (cat) {
+        expenseEmployeesState.expenseCategory = cat;
+        updateExpenseModalUI();
+      }
+    };
+  });
+
+  // Fast Amount Pills
+  document.querySelectorAll('.btn-fast-exp').forEach((btn) => {
+    btn.onclick = () => {
+      const amt = btn.getAttribute('data-fastexp');
+      if (amt) {
+        expenseEmployeesState.expenseAmount = amt;
+        updateExpenseModalUI();
+      }
+    };
+  });
+
+  // Numeric Keypad
+  document.querySelectorAll('.exp-keypad-btn').forEach((btn) => {
+    btn.onclick = () => {
+      const key = btn.getAttribute('data-expkey');
+      let cur = expenseEmployeesState.expenseAmount;
+
+      if (key === 'backspace') {
+        if (cur.length <= 1) {
+          cur = '0';
+        } else {
+          cur = cur.slice(0, -1);
         }
+      } else if (key === '.') {
+        if (!cur.includes('.')) {
+          cur = cur + '.';
+        }
+      } else {
+        if (cur === '0') {
+          cur = key;
+        } else {
+          cur = cur + key;
+        }
+      }
+
+      expenseEmployeesState.expenseAmount = cur;
+      updateExpenseModalUI();
+    };
+  });
+
+  // Mode Toggle
+  document.querySelectorAll('.btn-exp-mode').forEach((btn) => {
+    btn.onclick = () => {
+      const mode = btn.getAttribute('data-mode');
+      if (mode) {
+        expenseEmployeesState.expensePaymentMode = mode;
+        updateExpenseModalUI();
+      }
+    };
+  });
+
+  if (noteInput) {
+    noteInput.oninput = (e) => {
+      expenseEmployeesState.expenseNote = e.target.value;
+    };
+  }
+
+  // Confirm Expense Button
+  if (confirmBtn) {
+    confirmBtn.onclick = () => {
+      const amt = parseFloat(expenseEmployeesState.expenseAmount);
+      if (!amt || amt <= 0) {
+        store.showToast('Please enter an expense amount', 'error');
+        return;
+      }
+
+      const newTxn = {
+        id: generateTxnId('TXN-EXP'),
+        date: getTodayDate(),
+        type: 'expense',
+        category: expenseEmployeesState.expenseCategory,
+        amount: amt,
+        paymentMode: expenseEmployeesState.expensePaymentMode,
+        notes: expenseEmployeesState.expenseNote || `${expenseEmployeesState.expenseCategory} spend`,
+        createdAt: new Date().toISOString()
       };
+
+      closeExpenseKeypad();
+      expenseEmployeesState.expenseAmount = '0';
+      expenseEmployeesState.expenseNote = '';
+      store.addTransaction(newTxn);
+    };
+  }
+}
+
+export function attachWorkerProfileModalEvents() {
+  if (!expenseEmployeesState.selectedWorkerProfile) return;
+
+  const backdrop = document.getElementById('worker-profile-backdrop');
+  const closeBtn = document.getElementById('btn-close-worker-profile');
+  const payBtn = document.getElementById('btn-modal-pay-worker');
+
+  if (backdrop) {
+    backdrop.onclick = (e) => {
+      if (e.target === backdrop) {
+        expenseEmployeesState.selectedWorkerProfile = null;
+        store.notify();
+      }
+    };
+    backdrop.addEventListener('touchmove', (e) => {
+      if (e.target === backdrop) e.preventDefault();
+    }, { passive: false });
+  }
+
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      expenseEmployeesState.selectedWorkerProfile = null;
+      store.notify();
+    };
+  }
+
+  if (payBtn) {
+    payBtn.onclick = () => {
+      const wid = payBtn.getAttribute('data-workerid');
+      expenseEmployeesState.selectedWorkerProfile = null;
+      if (wid) openAddWageForWorker(wid);
+    };
+  }
+}
+
+export function attachWagePayoutEvents() {
+  if (!expenseEmployeesState.isPayingWage) return;
+
+  const backdrop = document.getElementById('wage-payout-backdrop');
+  const closeBtn = document.getElementById('btn-close-wage-payout');
+  const changeWorkerBtn = document.getElementById('btn-change-wage-worker');
+  const amtInput = document.getElementById('input-wage-amount-val');
+  const confirmDisburseBtn = document.getElementById('btn-confirm-wage-disbursement');
+
+  if (backdrop) {
+    backdrop.onclick = (e) => {
+      if (e.target === backdrop) closeWagePayoutModal();
+    };
+    backdrop.addEventListener('touchmove', (e) => {
+      if (e.target === backdrop) e.preventDefault();
+    }, { passive: false });
+  }
+
+  if (closeBtn) closeBtn.onclick = () => closeWagePayoutModal();
+
+  if (changeWorkerBtn) {
+    changeWorkerBtn.onclick = () => {
+      expenseEmployeesState.wageStep = 1;
+      store.notify();
+    };
+  }
+
+  // Pick Worker in Step 1
+  document.querySelectorAll('.btn-pick-worker-for-wage').forEach((btn) => {
+    btn.onclick = () => {
+      const wid = btn.getAttribute('data-selectworkerid');
+      if (wid) {
+        openAddWageForWorker(wid);
+      }
+    };
+  });
+
+  function updateWageModalUI() {
+    // Update Fast Wage Pills
+    document.querySelectorAll('.btn-fast-wage-pill').forEach((b) => {
+      const isMatch = b.getAttribute('data-fastwage') === expenseEmployeesState.wageAmount;
+      if (isMatch) {
+        b.className = 'btn-fast-wage-pill px-3 py-1 rounded-full text-[11px] font-bold font-sans transition-all cursor-pointer bg-slate-900 text-white border border-slate-900 shadow-xs';
+      } else {
+        b.className = 'btn-fast-wage-pill px-3 py-1 rounded-full text-[11px] font-bold font-sans transition-all cursor-pointer bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100';
+      }
     });
 
-    // Confirm Wage Disbursement
-    if (confirmDisburseBtn) {
-      confirmDisburseBtn.onclick = () => {
-        const amt = parseFloat(expenseEmployeesState.wageAmount);
-        if (!amt || amt <= 0) {
-          store.showToast('Please enter a valid wage amount', 'error');
-          return;
-        }
+    // Update Wage Payment Mode
+    document.querySelectorAll('.btn-pick-wage-mode').forEach((b) => {
+      const isMatch = b.getAttribute('data-wagemode') === expenseEmployeesState.wagePaymentMode;
+      if (isMatch) {
+        b.className = 'btn-pick-wage-mode px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer bg-slate-900 text-white shadow-xs';
+      } else {
+        b.className = 'btn-pick-wage-mode px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200';
+      }
+    });
 
-        const worker = store.workers.find(w => w.id === expenseEmployeesState.selectedWorkerId);
-        const workerName = worker ? worker.name : 'Estate Worker';
-
-        // Add wage expense transaction
-        const newTxn = {
-          id: generateTxnId('TXN-WAGE'),
-          date: getTodayDate(),
-          type: 'expense',
-          category: 'Staff Wages',
-          subCategory: expenseEmployeesState.selectedTask,
-          workerId: worker ? worker.id : null,
-          worker: workerName,
-          workerName: workerName,
-          amount: amt,
-          paymentMode: expenseEmployeesState.wagePaymentMode,
-          notes: `${expenseEmployeesState.selectedTask} - ${workerName}`,
-          createdAt: new Date().toISOString()
-        };
-
-        store.transactions.unshift(newTxn);
-
-        // Update worker pending wage balance
-        if (worker) {
-          store.workers = store.workers.map(w => {
-            if (w.id === worker.id) {
-              const currentPending = w.pendingWages || 0;
-              return {
-                ...w,
-                pendingWages: Math.max(0, currentPending - amt),
-                lastPaidDate: getTodayDate()
-              };
-            }
-            return w;
-          });
-        }
-
-        closeWagePayoutModal();
-        store.showToast(`Paid ₹${amt.toLocaleString('en-IN')} wage to ${workerName}`);
-      };
+    if (amtInput && amtInput.value !== expenseEmployeesState.wageAmount) {
+      amtInput.value = expenseEmployeesState.wageAmount;
     }
+
+    const confirmBtnSpan = document.querySelector('#btn-confirm-wage-disbursement span');
+    if (confirmBtnSpan) {
+      const amtNum = parseFloat(expenseEmployeesState.wageAmount);
+      const formatted = (!amtNum || amtNum <= 0) ? '0' : Math.floor(amtNum).toLocaleString('en-IN');
+      confirmBtnSpan.textContent = `Confirm Wage Payout of ₹${formatted}`;
+    }
+  }
+
+  // Fast Wage Pills
+  document.querySelectorAll('.btn-fast-wage-pill').forEach((btn) => {
+    btn.onclick = () => {
+      const val = btn.getAttribute('data-fastwage');
+      if (val) {
+        expenseEmployeesState.wageAmount = val;
+        updateWageModalUI();
+      }
+    };
+  });
+
+  // Wage Amount Input
+  if (amtInput) {
+    amtInput.oninput = (e) => {
+      expenseEmployeesState.wageAmount = e.target.value;
+      const confirmBtnSpan = document.querySelector('#btn-confirm-wage-disbursement span');
+      if (confirmBtnSpan) {
+        const amtNum = parseFloat(expenseEmployeesState.wageAmount);
+        const formatted = (!amtNum || amtNum <= 0) ? '0' : Math.floor(amtNum).toLocaleString('en-IN');
+        confirmBtnSpan.textContent = `Confirm Wage Payout of ₹${formatted}`;
+      }
+    };
+  }
+
+  // Pick Mode
+  document.querySelectorAll('.btn-pick-wage-mode').forEach((btn) => {
+    btn.onclick = () => {
+      const mode = btn.getAttribute('data-wagemode');
+      if (mode) {
+        expenseEmployeesState.wagePaymentMode = mode;
+        updateWageModalUI();
+      }
+    };
+  });
+
+  // Confirm Wage Disbursement
+  if (confirmDisburseBtn) {
+    confirmDisburseBtn.onclick = () => {
+      const amt = parseFloat(expenseEmployeesState.wageAmount);
+      if (!amt || amt <= 0) {
+        store.showToast('Please enter a valid wage amount', 'error');
+        return;
+      }
+
+      const worker = store.workers.find(w => w.id === expenseEmployeesState.selectedWorkerId);
+      const workerName = worker ? worker.name : 'Estate Worker';
+
+      // Add wage expense transaction
+      const newTxn = {
+        id: generateTxnId('TXN-WAGE'),
+        date: getTodayDate(),
+        type: 'expense',
+        category: 'Staff Wages',
+        subCategory: 'Daily Wage',
+        workerId: worker ? worker.id : null,
+        worker: workerName,
+        workerName: workerName,
+        amount: amt,
+        paymentMode: expenseEmployeesState.wagePaymentMode,
+        notes: `Daily wage payout for ${workerName}`,
+        createdAt: new Date().toISOString()
+      };
+
+      closeWagePayoutModal();
+      store.addTransaction(newTxn);
+    };
   }
 }

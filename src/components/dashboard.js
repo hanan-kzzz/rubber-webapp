@@ -141,11 +141,11 @@ export function renderDashboard() {
   }).slice(0, 6);
 
   return `
-    <div class="space-y-6 pb-8 pt-1">
+    <div class="space-y-6 pb-8 pt-1 page-view-enter">
       <!-- 1. Soft Sunrise / Peach-Coral Mesh Hero Card (Phone 2 Minimal Aesthetic) -->
       <div 
         id="card-estate-pass"
-        class="w-full rounded-[28px] card-mesh-peach p-5 flex flex-col justify-between min-h-[196px] cursor-pointer select-none relative overflow-hidden transition-all duration-300 active:scale-[0.99]"
+        class="w-full rounded-[28px] card-mesh-peach hero-mesh-animate p-5 flex flex-col justify-between min-h-[196px] cursor-pointer select-none relative overflow-hidden transition-all duration-300 active:scale-[0.99] card-hover-lift"
       >
         <!-- Top Row: Total Balance + Privacy Eye Toggle + Monthly Inflow Pill Badge -->
         <div class="flex items-center justify-between relative z-10">
@@ -206,10 +206,7 @@ export function renderDashboard() {
               ${icons.download("w-4 h-4 stroke-[2.5]")}
             </div>
             <div class="min-w-0">
-              <div class="flex items-center space-x-1.5">
-                <span class="text-xs font-black text-slate-900 truncate">Download RubberFlow</span>
-                <span class="px-1.5 py-0.5 rounded-full bg-lime-100 text-lime-900 text-[9px] font-bold">1-Tap PWA</span>
-              </div>
+              <div class="text-xs font-black text-slate-900 truncate">Download RubberFlow</div>
               <p class="text-[11px] text-slate-500 truncate mt-0.5">Install on home screen for 100% offline estate access</p>
             </div>
           </div>
@@ -508,7 +505,7 @@ export function renderDashboard() {
             return `
               <div 
                 data-txnid="${txn.id}"
-                class="txn-row-card p-3.5 rounded-2xl bg-white border border-slate-100 hover:border-slate-200 shadow-2xs flex items-center justify-between cursor-pointer active:scale-[0.99] transition-all group"
+                class="txn-row-card p-3.5 rounded-2xl bg-white border border-slate-100 hover:border-slate-200 shadow-2xs flex items-center justify-between cursor-pointer active:scale-[0.99] transition-all group stagger-item card-hover-lift"
               >
                 <div class="flex items-center space-x-3.5 min-w-0">
                   <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 border ${iconBg} group-hover:scale-105 transition-transform">
@@ -619,12 +616,8 @@ export function attachDashboardEvents() {
   document.querySelectorAll('.btn-home-buyer-avatar').forEach((btn) => {
     btn.onclick = () => {
       const cid = btn.getAttribute('data-home-custid');
-      store.setActiveTab('customers');
       if (cid) {
-        setTimeout(() => {
-          const custCard = document.querySelector(`.card-customer-header[data-custid="${cid}"]`);
-          if (custCard) custCard.click();
-        }, 50);
+        store.viewCustomer(cid);
       }
     };
   });

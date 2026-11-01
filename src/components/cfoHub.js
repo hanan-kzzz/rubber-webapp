@@ -10,7 +10,7 @@ export function renderCfoHub() {
   const { estate } = store;
 
   return `
-    <div class="space-y-4 pb-8 pt-1">
+    <div class="space-y-4 pb-8 pt-1 page-view-enter">
       <!-- 1. Profile Avatar & Name (Exact Monex Settings Screen) -->
       <div class="text-center py-2 space-y-2">
         <div class="w-20 h-20 rounded-full bg-slate-900 text-lime-400 p-[3px] mx-auto shadow-md relative">
@@ -90,7 +90,7 @@ export function renderCfoHub() {
           ${AI_CFO_PROMPTS.slice(0, 3).map((prompt) => {
             const isCopied = copiedPromptId === prompt.id;
             return `
-              <div class="p-3.5 rounded-2xl bg-white border border-slate-100 shadow-2xs flex items-center justify-between">
+              <div class="p-3.5 rounded-2xl bg-white border border-slate-100 shadow-2xs flex items-center justify-between stagger-item card-hover-lift">
                 <div class="min-w-0 mr-2">
                   <h4 class="text-xs font-bold text-slate-900 truncate">${prompt.title}</h4>
                   <span class="text-[10px] text-slate-400 block mt-0.5 truncate">${prompt.shortDesc}</span>
@@ -130,7 +130,7 @@ export function renderCfoHub() {
         >
           <div class="flex items-center space-x-3">
             <span class="text-slate-400">${icons.rotateCcw("w-4 h-4")}</span>
-            <span class="text-xs font-semibold text-slate-800">Reset Demo Data</span>
+            <span class="text-xs font-semibold text-slate-800">Reset to Clean State</span>
           </div>
           <span class="text-slate-400">${icons.chevronRight("w-4 h-4")}</span>
         </button>
@@ -203,8 +203,8 @@ export function attachCfoEvents() {
   if (resetBtn) {
     resetBtn.onclick = () => {
       store.setConfirmModal({
-        title: 'Reset Demo Data?',
-        message: 'This will restore sample transactions and customer balances.',
+        title: 'Reset to Clean State?',
+        message: 'This will reset all records and start fresh with an empty ledger.',
         confirmText: 'Reset',
         isDanger: false,
         onConfirm: () => {

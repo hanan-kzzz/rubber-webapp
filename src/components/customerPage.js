@@ -24,11 +24,8 @@ export function setCustomerFilter(mode) {
 }
 
 export function openCustomerProfile(customerId) {
-  const cust = store.customers.find(c => c.id === customerId);
-  if (cust) {
-    customerPageState.selectedCustomerProfile = cust;
-    store.notify();
-  }
+  customerPageState.selectedCustomerProfile = null;
+  store.viewCustomer(customerId);
 }
 
 export function closeCustomerProfile() {
@@ -90,9 +87,9 @@ export function renderCustomerPage() {
   });
 
   return `
-    <div class="space-y-4 pb-8 pt-1 animate-fade-in">
+    <div class="space-y-4 pb-8 pt-1 page-view-enter">
       <!-- 1. Soft Sunrise / Peach-Coral Mesh Hero Card (Phone 2 Aesthetic) -->
-      <div class="rounded-[28px] card-mesh-peach p-5 relative overflow-hidden select-none transition-all duration-300">
+      <div class="rounded-[28px] card-mesh-peach hero-mesh-animate card-hover-lift p-5 relative overflow-hidden select-none transition-all duration-300">
         <!-- Top Row: Label + Overdue Status Pill -->
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-700/80">
@@ -256,7 +253,7 @@ export function renderCustomerPage() {
           const cleanPhone = cust.phone ? cust.phone.replace(/[^0-9]/g, '') : '';
 
           return `
-            <div class="rounded-[26px] bg-white p-4.5 border border-slate-100 hover:border-slate-200 shadow-2xs space-y-3 transition-all">
+            <div class="rounded-[26px] bg-white p-4.5 border border-slate-100 hover:border-slate-200 shadow-2xs space-y-3 transition-all stagger-item card-hover-lift">
               <!-- Top Row: Customer Info & Balance Due -->
               <div class="flex items-start justify-between cursor-pointer card-customer-header" data-custid="${cust.id}">
                 <div class="flex items-center space-x-3 min-w-0">
@@ -351,23 +348,18 @@ export function renderCustomerPage() {
           `;
         }).join('')}
       </div>
-
-      <!-- Modals & Drawers -->
-      ${settlingCustomer ? renderSettleDrawer(settlingCustomer) : ''}
-      ${customerPageState.selectedCustomerProfile ? renderCustomerLedgerModal(customerPageState.selectedCustomerProfile) : ''}
-      ${customerPageState.showAddCustomerModal ? renderAddCustomerModal() : ''}
     </div>
   `;
 }
 
-function renderSettleDrawer(cust) {
+export function renderSettleDrawer(cust) {
   const currentOutstanding = cust.outstandingDue || 0;
   const payAmt = parseFloat(customerPageState.settlementAmount) || 0;
   const remainingDueAfter = Math.max(0, currentOutstanding - payAmt);
 
   return `
-    <div id="customer-settle-backdrop" class="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs animate-fade-in" style="touch-action: none;">
-      <div id="customer-settle-sheet" class="relative w-full max-w-md max-h-[85vh] bg-white rounded-t-[36px] overflow-hidden flex flex-col z-10 animate-slide-up shadow-2xl pointer-events-auto overscroll-contain" style="padding-bottom: max(env(safe-area-inset-bottom, 0px), 20px); touch-action: pan-y; overscroll-behavior: contain;">
+    <div id="customer-settle-backdrop" class="fixed inset-0 z-[60] flex items-end justify-center bg-black/60 backdrop-blur-xs animate-fade-in">
+      <div id="customer-settle-sheet" class="relative w-full max-w-md max-h-[90vh] bg-white rounded-t-[36px] overflow-hidden flex flex-col z-10 animate-slide-up shadow-2xl pointer-events-auto" style="padding-bottom: max(env(safe-area-inset-bottom, 0px), 24px);">
         <div class="pt-3 pb-1 flex justify-center items-center cursor-grab">
           <div class="w-12 h-1.5 rounded-full bg-slate-200"></div>
         </div>
@@ -599,9 +591,9 @@ function renderCustomerLedgerModal(cust) {
   `;
 }
 
-function renderAddCustomerModal() {
+export function renderAddCustomerModal() {
   return `
-    <div id="add-customer-backdrop" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in" style="touch-action: none;">
+    <div id="add-customer-backdrop" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in" style="touch-action: none;">
       <div class="relative w-full max-w-sm bg-white rounded-3xl p-6 border border-slate-100 shadow-2xl animate-slide-up pointer-events-auto overscroll-contain" style="touch-action: pan-y; overscroll-behavior: contain;">
         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
           <div class="flex items-center space-x-3">
@@ -790,119 +782,90 @@ export function attachCustomerPageEvents() {
   });
 
   // Settle Drawer Events
-  if (store.settlingCustomer) {
-    const backdrop = document.getElementById('customer-settle-backdrop');
-    const closeBtn = document.getElementById('btn-close-customer-settle');
-    const payFullBtn = document.getElementById('btn-cust-pay-full');
-    const payHalfBtn = document.getElementById('btn-cust-pay-half');
-    const amtInput = document.getElementById('input-cust-settle-amount');
-    const dateInput = document.getElementById('input-cust-settle-date');
-    const notesInput = document.getElementById('input-cust-settle-notes');
-    const confirmBtn = document.getElementById('btn-cust-confirm-settlement');
+  attachSettleDrawerEvents();
+}
 
-    if (backdrop) {
-      backdrop.onclick = (e) => {
-        if (e.target === backdrop) closeSettleDrawer();
-      };
-      backdrop.addEventListener('touchmove', (e) => {
-        if (e.target === backdrop) e.preventDefault();
-      }, { passive: false });
-    }
+export function attachSettleDrawerEvents() {
+  if (!store.settlingCustomer) return;
 
-    if (closeBtn) closeBtn.onclick = () => closeSettleDrawer();
+  const backdrop = document.getElementById('customer-settle-backdrop');
+  const closeBtn = document.getElementById('btn-close-customer-settle');
+  const payFullBtn = document.getElementById('btn-cust-pay-full');
+  const payHalfBtn = document.getElementById('btn-cust-pay-half');
+  const amtInput = document.getElementById('input-cust-settle-amount');
+  const dateInput = document.getElementById('input-cust-settle-date');
+  const notesInput = document.getElementById('input-cust-settle-notes');
+  const confirmBtn = document.getElementById('btn-cust-confirm-settlement');
 
-    if (payFullBtn) {
-      payFullBtn.onclick = () => {
-        customerPageState.settlementAmount = String(store.settlingCustomer.outstandingDue || 0);
+  if (backdrop) {
+    backdrop.onclick = (e) => {
+      if (e.target === backdrop) closeSettleDrawer();
+    };
+  }
+
+  if (closeBtn) closeBtn.onclick = () => closeSettleDrawer();
+
+  if (payFullBtn) {
+    payFullBtn.onclick = () => {
+      customerPageState.settlementAmount = String(store.settlingCustomer.outstandingDue || 0);
+      store.notify();
+    };
+  }
+
+  if (payHalfBtn) {
+    payHalfBtn.onclick = () => {
+      const half = Math.round((store.settlingCustomer.outstandingDue || 0) / 2);
+      customerPageState.settlementAmount = String(half);
+      store.notify();
+    };
+  }
+
+  if (amtInput) {
+    amtInput.oninput = (e) => {
+      customerPageState.settlementAmount = e.target.value;
+    };
+  }
+
+  if (dateInput) {
+    dateInput.onchange = (e) => {
+      customerPageState.settlementDate = e.target.value;
+    };
+  }
+
+  if (notesInput) {
+    notesInput.oninput = (e) => {
+      customerPageState.settlementNotes = e.target.value;
+    };
+  }
+
+  document.querySelectorAll('.btn-cust-settle-mode').forEach((btn) => {
+    btn.onclick = () => {
+      const mode = btn.getAttribute('data-settlemode');
+      if (mode) {
+        customerPageState.settlementMode = mode;
         store.notify();
-      };
-    }
+      }
+    };
+  });
 
-    if (payHalfBtn) {
-      payHalfBtn.onclick = () => {
-        const half = Math.round((store.settlingCustomer.outstandingDue || 0) / 2);
-        customerPageState.settlementAmount = String(half);
-        store.notify();
-      };
-    }
+  if (confirmBtn) {
+    confirmBtn.onclick = () => {
+      const amt = parseFloat(customerPageState.settlementAmount);
+      if (!amt || amt <= 0) {
+        store.showToast('Please enter a valid settlement amount', 'error');
+        return;
+      }
 
-    if (amtInput) {
-      amtInput.oninput = (e) => {
-        customerPageState.settlementAmount = e.target.value;
-      };
-    }
+      store.recordCustomerSettlement({
+        customerId: store.settlingCustomer.id,
+        amount: amt,
+        paymentMode: customerPageState.settlementMode,
+        notes: customerPageState.settlementNotes,
+        date: customerPageState.settlementDate
+      });
 
-    if (dateInput) {
-      dateInput.onchange = (e) => {
-        customerPageState.settlementDate = e.target.value;
-      };
-    }
-
-    if (notesInput) {
-      notesInput.oninput = (e) => {
-        customerPageState.settlementNotes = e.target.value;
-      };
-    }
-
-    document.querySelectorAll('.btn-cust-settle-mode').forEach((btn) => {
-      btn.onclick = () => {
-        const mode = btn.getAttribute('data-settlemode');
-        if (mode) {
-          customerPageState.settlementMode = mode;
-          store.notify();
-        }
-      };
-    });
-
-    if (confirmBtn) {
-      confirmBtn.onclick = () => {
-        const amt = parseFloat(customerPageState.settlementAmount);
-        if (!amt || amt <= 0) {
-          store.showToast('Please enter a valid settlement amount', 'error');
-          return;
-        }
-
-        const cust = store.settlingCustomer;
-        const currentDue = cust.outstandingDue || 0;
-        const newDue = Math.max(0, currentDue - amt);
-        const newReceived = (cust.amountReceived || 0) + amt;
-
-        // Update customer in store
-        store.customers = store.customers.map((c) => {
-          if (c.id === cust.id) {
-            return {
-              ...c,
-              outstandingDue: newDue,
-              amountReceived: newReceived,
-              lastSettledDate: customerPageState.settlementDate
-            };
-          }
-          return c;
-        });
-
-        // Add receipt settlement transaction to history
-        store.transactions.unshift({
-          id: generateTxnId('TXN-SETTLE'),
-          date: customerPageState.settlementDate,
-          type: 'income',
-          category: 'Customer Payment',
-          subCategory: 'Due Settlement',
-          amount: amt,
-          paidAmount: amt,
-          dueAmount: newDue,
-          paymentMode: customerPageState.settlementMode,
-          paymentStatus: newDue === 0 ? 'paid' : 'partial',
-          customerId: cust.id,
-          customer: cust.name,
-          notes: customerPageState.settlementNotes || `Settlement from ${cust.name}`,
-          createdAt: new Date().toISOString()
-        });
-
-        const settledCustName = cust.name;
-        closeSettleDrawer();
-        store.showToast(`Received ₹${amt.toLocaleString('en-IN')} payment from ${settledCustName}`);
-      };
-    }
+      closeSettleDrawer();
+    };
   }
 
   // Customer Ledger Modal Events
@@ -933,57 +896,63 @@ export function attachCustomerPageEvents() {
 
   // Add Customer Modal Events
   if (customerPageState.showAddCustomerModal) {
-    const backdrop = document.getElementById('add-customer-backdrop');
-    const closeBtn = document.getElementById('btn-close-add-customer-modal');
-    const cancelBtn = document.getElementById('btn-cancel-add-customer');
-    const form = document.getElementById('form-customer-add');
+    attachAddCustomerModalEvents();
+  }
+}
 
-    if (backdrop) {
-      backdrop.onclick = (e) => {
-        if (e.target === backdrop) closeAddCustomerModal();
+export function attachAddCustomerModalEvents() {
+  if (!customerPageState.showAddCustomerModal) return;
+
+  const backdrop = document.getElementById('add-customer-backdrop');
+  const closeBtn = document.getElementById('btn-close-add-customer-modal');
+  const cancelBtn = document.getElementById('btn-cancel-add-customer');
+  const form = document.getElementById('form-customer-add');
+
+  if (backdrop) {
+    backdrop.onclick = (e) => {
+      if (e.target === backdrop) closeAddCustomerModal();
+    };
+    backdrop.addEventListener('touchmove', (e) => {
+      if (e.target === backdrop) e.preventDefault();
+    }, { passive: false });
+  }
+
+  if (closeBtn) closeBtn.onclick = () => closeAddCustomerModal();
+  if (cancelBtn) cancelBtn.onclick = () => closeAddCustomerModal();
+
+  if (form) {
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById('input-new-cust-name');
+      const phoneInput = document.getElementById('input-new-cust-phone');
+      const cityInput = document.getElementById('input-new-cust-city');
+      const openBalInput = document.getElementById('input-new-cust-opening-bal');
+
+      const name = nameInput ? nameInput.value.trim() : '';
+      const phone = phoneInput ? phoneInput.value.trim() : '';
+      const city = cityInput ? cityInput.value.trim() : '';
+      const openingBal = openBalInput ? parseFloat(openBalInput.value) || 0 : 0;
+
+      if (!name) {
+        store.showToast('Please enter customer name', 'error');
+        return;
+      }
+
+      const newCustId = generateTxnId('CUST');
+      const newCustomer = {
+        id: newCustId,
+        name,
+        phone: phone || '',
+        city: city || 'Kottayam',
+        totalBilled: openingBal,
+        amountReceived: 0,
+        outstandingDue: openingBal,
+        createdAt: new Date().toISOString()
       };
-      backdrop.addEventListener('touchmove', (e) => {
-        if (e.target === backdrop) e.preventDefault();
-      }, { passive: false });
-    }
 
-    if (closeBtn) closeBtn.onclick = () => closeAddCustomerModal();
-    if (cancelBtn) cancelBtn.onclick = () => closeAddCustomerModal();
-
-    if (form) {
-      form.onsubmit = (e) => {
-        e.preventDefault();
-        const nameInput = document.getElementById('input-new-cust-name');
-        const phoneInput = document.getElementById('input-new-cust-phone');
-        const cityInput = document.getElementById('input-new-cust-city');
-        const openBalInput = document.getElementById('input-new-cust-opening-bal');
-
-        const name = nameInput ? nameInput.value.trim() : '';
-        const phone = phoneInput ? phoneInput.value.trim() : '';
-        const city = cityInput ? cityInput.value.trim() : '';
-        const openingBal = openBalInput ? parseFloat(openBalInput.value) || 0 : 0;
-
-        if (!name) {
-          store.showToast('Please enter customer name', 'error');
-          return;
-        }
-
-        const newCustId = generateTxnId('CUST');
-        const newCustomer = {
-          id: newCustId,
-          name,
-          phone: phone || '',
-          city: city || 'Kottayam',
-          totalBilled: openingBal,
-          amountReceived: 0,
-          outstandingDue: openingBal,
-          createdAt: new Date().toISOString()
-        };
-
-        store.customers.push(newCustomer);
-        closeAddCustomerModal();
-        store.showToast(`Customer "${name}" added successfully`);
-      };
-    }
+      store.customers.push(newCustomer);
+      closeAddCustomerModal();
+      store.showToast(`Customer "${name}" added successfully`);
+    };
   }
 }

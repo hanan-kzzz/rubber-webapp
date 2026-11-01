@@ -2,11 +2,11 @@ import { store } from '../state.js';
 import { icons } from '../icons.js';
 
 export function renderBottomNav() {
-  const { activeTab, isQuickActionsOpen } = store;
+  const { activeTab, isQuickActionsOpen, selectedCustomerId, selectedWorkerId } = store;
 
-  const isHome = activeTab === 'dashboard';
-  const isExpensesEmployees = ['expenses', 'wages', 'employees', 'ledger'].includes(activeTab);
-  const isCustomers = ['customers', 'dues'].includes(activeTab);
+  const isHome = activeTab === 'dashboard' && !selectedCustomerId && !selectedWorkerId;
+  const isExpensesEmployees = ['expenses', 'wages', 'employees', 'ledger'].includes(activeTab) || Boolean(selectedWorkerId);
+  const isCustomers = ['customers', 'dues'].includes(activeTab) || Boolean(selectedCustomerId);
   const isSettings = activeTab === 'cfo';
 
   // Completely hide bottom nav on focused wage entry page if active
@@ -30,7 +30,7 @@ export function renderBottomNav() {
           aria-label="Home"
           title="Home"
         >
-          ${icons.home(isHome ? "w-5 h-5 stroke-[2.5]" : "w-5 h-5 stroke-[1.8]")}
+          ${icons.home(isHome ? "w-5 h-5 stroke-[2]" : "w-5 h-5 stroke-[1.8]")}
           ${isHome ? '<span class="w-1 h-1 rounded-full bg-[#a3e635] mt-0.5"></span>' : ''}
         </button>
 
@@ -43,7 +43,7 @@ export function renderBottomNav() {
           aria-label="Expense & Employees"
           title="Expense & Employees"
         >
-          ${icons.banknote(isExpensesEmployees ? "w-5 h-5 stroke-[2.5]" : "w-5 h-5 stroke-[1.8]")}
+          ${icons.banknote(isExpensesEmployees ? "w-5 h-5 stroke-[2]" : "w-5 h-5 stroke-[1.8]")}
           ${isExpensesEmployees ? '<span class="w-1 h-1 rounded-full bg-[#a3e635] mt-0.5"></span>' : ''}
         </button>
 
@@ -59,11 +59,11 @@ export function renderBottomNav() {
           <span class="inline-flex items-center justify-center transition-transform duration-200 ${
             isQuickActionsOpen ? 'rotate-45' : 'rotate-0'
           }">
-            ${icons.plus("w-5 h-5 text-slate-950 stroke-[3]")}
+            ${icons.plus("w-5 h-5 text-slate-950 stroke-[2.5]")}
           </span>
         </button>
 
-        <!-- Tab 4: Customers -->
+        <!-- Tab 3: Customers -->
         <button
           data-tab="customers"
           class="nav-tab-btn flex flex-col items-center justify-center w-10 h-10 rounded-full transition-all duration-200 active:scale-95 cursor-pointer ${
@@ -72,11 +72,11 @@ export function renderBottomNav() {
           aria-label="Customers"
           title="Customers"
         >
-          ${icons.users(isCustomers ? "w-5 h-5 stroke-[2.5]" : "w-5 h-5 stroke-[1.8]")}
+          ${icons.users(isCustomers ? "w-5 h-5 stroke-[2]" : "w-5 h-5 stroke-[1.8]")}
           ${isCustomers ? '<span class="w-1 h-1 rounded-full bg-[#a3e635] mt-0.5"></span>' : ''}
         </button>
 
-        <!-- Tab 5: Settings / CFO -->
+        <!-- Tab 4: Settings / CFO -->
         <button
           data-tab="cfo"
           class="nav-tab-btn flex flex-col items-center justify-center w-10 h-10 rounded-full transition-all duration-200 active:scale-95 cursor-pointer ${
@@ -85,7 +85,7 @@ export function renderBottomNav() {
           aria-label="Settings"
           title="Settings & Reports"
         >
-          ${icons.settings(isSettings ? "w-5 h-5 stroke-[2.5]" : "w-5 h-5 stroke-[1.8]")}
+          ${icons.settings(isSettings ? "w-5 h-5 stroke-[2]" : "w-5 h-5 stroke-[1.8]")}
           ${isSettings ? '<span class="w-1 h-1 rounded-full bg-[#a3e635] mt-0.5"></span>' : ''}
         </button>
       </nav>
@@ -99,6 +99,8 @@ export function attachBottomNavEvents() {
       const tab = btn.getAttribute('data-tab');
       if (tab) {
         if (store.isQuickActionsOpen) store.setQuickActionsOpen(false);
+        if (store.selectedCustomerId) store.selectedCustomerId = null;
+        if (store.selectedWorkerId) store.selectedWorkerId = null;
         store.setActiveTab(tab);
       }
     };

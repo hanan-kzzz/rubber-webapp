@@ -28,7 +28,7 @@ export function renderIncomePage() {
   ];
 
   return `
-    <div class="space-y-4 pb-8 pt-1">
+    <div class="space-y-4 pb-8 pt-1 page-view-enter">
       <!-- 1. Horizontal Contact Avatar Carousel -->
       <div>
         <div class="flex items-center justify-between px-1 mb-2">
@@ -174,10 +174,14 @@ export function renderIncomePage() {
         </span>
 
         <div class="space-y-2">
-          ${incomeTxns.slice(0, 5).map((txn) => {
+          ${incomeTxns.length === 0 ? `
+            <div class="p-8 text-center rounded-2xl bg-white border border-slate-100 text-slate-400 text-xs">
+              No customer payments recorded yet.
+            </div>
+          ` : incomeTxns.slice(0, 5).map((txn) => {
             const cust = customers.find(c => c.id === txn.customerId);
             return `
-              <div class="p-3.5 rounded-2xl bg-white border border-slate-100 hover:border-slate-200 flex items-center justify-between shadow-2xs transition-all">
+              <div class="p-3.5 rounded-2xl bg-white border border-slate-100 hover:border-slate-200 flex items-center justify-between shadow-2xs transition-all stagger-item card-hover-lift">
                 <div class="flex items-center space-x-3.5 min-w-0">
                   <div class="w-11 h-11 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 flex items-center justify-center font-bold text-xs shrink-0">
                     ${icons.arrowDown("w-4 h-4 text-emerald-700 stroke-[2.5]")}

@@ -9,18 +9,26 @@ export function renderHeader() {
   const titles = {
     dashboard: 'Home',
     income: 'Customer Payments',
-    expenses: 'Expenses & Employees',
-    wages: 'Expenses & Employees',
-    employees: 'Expenses & Employees',
-    ledger: 'Expenses & Employees',
+    expenses: 'Expenses',
+    wages: 'Employees & Wages',
+    employees: 'Employees & Wages',
+    ledger: 'Expenses',
     dues: 'Customers',
     customers: 'Customers',
     cfo: 'Settings & AI CFO',
     notifications: 'Notifications',
   };
 
-  const currentTitle = titles[activeTab] || 'Home';
-  const isHome = activeTab === 'dashboard';
+  let currentTitle = titles[activeTab] || 'Home';
+  if (store.selectedCustomerId) {
+    const cust = store.customers.find(c => c.id === store.selectedCustomerId);
+    currentTitle = cust ? cust.name : 'Customer Statement';
+  } else if (store.selectedWorkerId) {
+    const wrk = store.workers.find(w => w.id === store.selectedWorkerId);
+    currentTitle = wrk ? wrk.name : 'Employee Ledger';
+  }
+
+  const isHome = activeTab === 'dashboard' && !store.selectedCustomerId && !store.selectedWorkerId;
   const unreadNotifs = store.getUnreadNotificationCount ? store.getUnreadNotificationCount() : 0;
 
   // Completely hide header on focused wage entry page
@@ -80,7 +88,7 @@ export function renderHeader() {
           aria-label="Download App"
         >
           ${icons.download("w-4 h-4 text-slate-700")}
-          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#84cc16] ring-1 ring-white animate-pulse"></span>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#84cc16] ring-1 ring-white pulse-ambient"></span>
         </button>
 
         <button
@@ -102,7 +110,7 @@ export function renderHeader() {
         >
           ${icons.bell("w-4 h-4 text-slate-700")}
           ${unreadNotifs > 0 ? `
-            <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white shadow-2xs animate-pulse">
+            <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white shadow-2xs pulse-ambient">
               ${unreadNotifs}
             </span>
           ` : ''}
@@ -136,7 +144,15 @@ export function attachHeaderEvents() {
 
   const backBtn = document.getElementById('btn-header-back');
   if (backBtn) {
-    backBtn.onclick = () => store.setActiveTab('dashboard');
+    backBtn.onclick = () => {
+      if (store.selectedCustomerId) {
+        store.clearSelectedCustomer();
+      } else if (store.selectedWorkerId) {
+        store.clearSelectedWorker();
+      } else {
+        store.setActiveTab('dashboard');
+      }
+    };
   }
 
   const bellBtn = document.getElementById('btn-header-bell');

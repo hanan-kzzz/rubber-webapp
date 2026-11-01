@@ -3,8 +3,6 @@ import { icons } from '../icons.js';
 import { setSelectedExpenseCategory } from './expensesPage.js';
 import { setSelectedWorkerId } from './wagesPage.js';
 
-let newEmployeeRole = 'Rubber Tapper';
-
 export function renderQuickActionsModal() {
   if (!store.isQuickActionsOpen) return '';
 
@@ -172,18 +170,10 @@ export function renderQuickActionsModal() {
 export function renderAddEmployeeModal() {
   if (!store.isAddEmployeeModalOpen) return '';
 
-  const ROLES = [
-    'Rubber Tapper',
-    'Latex Collector',
-    'Field Staff',
-    'Smokehouse Curing',
-    'Weeding & Spray'
-  ];
-
   return `
     <div 
       id="add-employee-backdrop" 
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in"
+      class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
       style="touch-action: none;"
       aria-modal="true"
       role="dialog"
@@ -235,32 +225,7 @@ export function renderAddEmployeeModal() {
             />
           </div>
 
-          <!-- Field 2: Role Selection Chips -->
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              Assigned Role
-            </label>
-            <div class="flex flex-wrap gap-1.5">
-              ${ROLES.map((role) => {
-                const isSelected = newEmployeeRole === role;
-                return `
-                  <button
-                    type="button"
-                    data-role="${role}"
-                    class="btn-select-new-role px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                      isSelected
-                        ? 'bg-indigo-600 text-white shadow-xs'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }"
-                  >
-                    ${role}
-                  </button>
-                `;
-              }).join('')}
-            </div>
-          </div>
-
-          <!-- Field 3: Phone / Mobile (Optional) -->
+          <!-- Field 2: Phone / Mobile (Optional) -->
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5" for="input-employee-phone">
               Mobile Number (Optional)
@@ -516,14 +481,6 @@ export function attachQuickActionsEvents() {
     if (closeBtn) closeBtn.onclick = closeModal;
     if (cancelBtn) cancelBtn.onclick = closeModal;
 
-    // Role selection chips
-    document.querySelectorAll('.btn-select-new-role').forEach((btn) => {
-      btn.onclick = () => {
-        newEmployeeRole = btn.getAttribute('data-role') || 'Rubber Tapper';
-        store.notify();
-      };
-    });
-
     if (form) {
       form.onsubmit = (e) => {
         e.preventDefault();
@@ -539,13 +496,13 @@ export function attachQuickActionsEvents() {
 
         const newWorker = store.addWorker({
           name,
-          role: newEmployeeRole,
+          role: 'Estate Worker',
           phone
         });
 
         closeModal();
         setSelectedWorkerId(newWorker.id);
-        store.showToast(`Added ${newWorker.name} (${newEmployeeRole})`);
+        store.showToast(`Added employee: ${newWorker.name}`);
         store.setActiveTab('wages');
       };
     }

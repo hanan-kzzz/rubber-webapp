@@ -304,7 +304,7 @@ function getSearchItems(query) {
       'settle'
     ],
     action: () => {
-      store.setActiveTab('dues');
+      store.viewCustomer(c.id);
     }
   }));
 
@@ -329,8 +329,7 @@ function getSearchItems(query) {
       'pay'
     ],
     action: () => {
-      setSelectedWorkerId(w.id);
-      store.setActiveTab('wages');
+      store.viewWorker(w.id);
     }
   }));
 
@@ -521,7 +520,7 @@ export function renderSearchModulesModal() {
                 <div
                   data-index="${idx}"
                   data-item-id="${item.id}"
-                  class="search-item-row group flex items-center justify-between p-3 rounded-2xl cursor-pointer transition-all border ${
+                  class="search-item-row group flex items-center justify-between p-3 rounded-2xl cursor-pointer transition-all border stagger-item ${
                     isSelected
                       ? 'bg-slate-100/90 border-slate-300/80 shadow-xs ring-1 ring-slate-900/10'
                       : 'bg-white hover:bg-slate-50 border-slate-100/80'

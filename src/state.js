@@ -8,80 +8,16 @@ import {
 import { generateTxnId, getTodayDate, getYesterdayDate } from './utils/formatters.js';
 
 const STORAGE_KEYS = {
-  ESTATE: 'rubberflow_estate_v1',
-  TRANSACTIONS: 'rubberflow_transactions_v1',
-  CUSTOMERS: 'rubberflow_customers_v1',
-  WORKERS: 'rubberflow_workers_v1',
-  DRIVERS: 'rubberflow_drivers_v1',
-  NOTIFICATIONS: 'rubberflow_notifications_v1',
-  BALANCE_HIDDEN: 'rubberflow_balance_hidden_v1',
+  ESTATE: 'rubberflow_estate_v2',
+  TRANSACTIONS: 'rubberflow_transactions_v2',
+  CUSTOMERS: 'rubberflow_customers_v2',
+  WORKERS: 'rubberflow_workers_v2',
+  DRIVERS: 'rubberflow_drivers_v2',
+  NOTIFICATIONS: 'rubberflow_notifications_v2',
+  BALANCE_HIDDEN: 'rubberflow_balance_hidden_v2',
 };
 
-export const INITIAL_NOTIFICATIONS = [
-  {
-    id: "notif-1",
-    type: "dues",
-    title: "Overdue Dues: Kottayam Rubber Traders",
-    message: "Outstanding due of ₹50,000 pending past settlement schedule. 1-tap WhatsApp statement reminder available.",
-    time: "12 mins ago",
-    unread: true,
-    actionType: "navigate_customer",
-    actionId: "CUST-101",
-    actionLabel: "View Buyer",
-    badge: "₹50,000 Due",
-    badgeColor: "rose"
-  },
-  {
-    id: "notif-2",
-    type: "wages",
-    title: "Tapping Crew Payout Pending",
-    message: "Morning tapping wages due for Sasi Kumar & Murugan (₹2,800 total). Shift logs recorded.",
-    time: "1 hour ago",
-    unread: true,
-    actionType: "navigate_wages",
-    actionId: "WRK-201",
-    actionLabel: "Pay Wages",
-    badge: "₹2,800 Crew",
-    badgeColor: "amber"
-  },
-  {
-    id: "notif-3",
-    type: "system",
-    title: "DRC Lab Test Certified: 58%",
-    message: "Latex collection TXN-9078 verified at 58% DRC with premium dry rubber yield recorded.",
-    time: "Today, 10:30 AM",
-    unread: true,
-    actionType: "view_transaction",
-    actionId: "TXN-9078",
-    actionLabel: "View Receipt",
-    badge: "58% DRC Grade",
-    badgeColor: "lime"
-  },
-  {
-    id: "notif-4",
-    type: "expenses",
-    title: "Formic Acid Delivery Logged",
-    message: "2 Barrels 85% Formic Acid (₹8,800) delivered from Travancore Chemicals Co.",
-    time: "Yesterday, 2:20 PM",
-    unread: false,
-    actionType: "navigate_expenses",
-    actionLabel: "View Outflow",
-    badge: "₹8,800 Supplies",
-    badgeColor: "sky"
-  },
-  {
-    id: "notif-5",
-    type: "system",
-    title: "Smokehouse Curing Stabilized",
-    message: "Trolley #2 inspection complete. Temperature maintained at 54°C for ribbed smoked sheets.",
-    time: "Yesterday, 9:00 AM",
-    unread: false,
-    actionType: "none",
-    actionLabel: "View Estate",
-    badge: "54°C Smokehouse",
-    badgeColor: "purple"
-  }
-];
+export const INITIAL_NOTIFICATIONS = [];
 
 class StateStore {
   constructor() {
@@ -90,15 +26,25 @@ class StateStore {
   }
 
   init() {
+    // Purge legacy mock data from v1 keys
+    try {
+      const legacyKeys = [
+        'rubberflow_estate_v1',
+        'rubberflow_transactions_v1',
+        'rubberflow_customers_v1',
+        'rubberflow_workers_v1',
+        'rubberflow_drivers_v1',
+        'rubberflow_notifications_v1',
+        'rubberflow_balance_hidden_v1'
+      ];
+      legacyKeys.forEach((k) => localStorage.removeItem(k));
+    } catch {
+      // ignore
+    }
+
     try {
       const e = localStorage.getItem(STORAGE_KEYS.ESTATE);
       this.estate = e ? JSON.parse(e) : { ...INITIAL_ESTATE };
-      if (this.estate.name === "GreenValley Rubber Estate") {
-        this.estate.name = "Green Valley Rubber Estate";
-      }
-      if (!this.estate.owner || this.estate.owner === "Thomas Matthew") {
-        this.estate.owner = "Ashraf";
-      }
     } catch {
       this.estate = { ...INITIAL_ESTATE };
     }
@@ -106,19 +52,23 @@ class StateStore {
     try {
       const t = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
       const parsed = t ? JSON.parse(t) : [...INITIAL_TRANSACTIONS];
-      this.transactions = parsed.map((txn) => {
-        if (txn.category === 'Goods Purchases') {
-          return { ...txn, category: 'Maintenance' };
-        }
-        return txn;
-      });
+      this.transactions = (Array.isArray(parsed) ? parsed : [])
+        .filter((txn) => !txn.id?.startsWith('TXN-907') && !txn.id?.startsWith('TXN-908'))
+        .map((txn) => {
+          if (txn.category === 'Goods Purchases') {
+            return { ...txn, category: 'Maintenance' };
+          }
+          return txn;
+        });
     } catch {
       this.transactions = [...INITIAL_TRANSACTIONS];
     }
 
     try {
       const c = localStorage.getItem(STORAGE_KEYS.CUSTOMERS);
-      this.customers = c ? JSON.parse(c) : [...INITIAL_CUSTOMERS];
+      const parsed = c ? JSON.parse(c) : [...INITIAL_CUSTOMERS];
+      this.customers = (Array.isArray(parsed) ? parsed : [])
+        .filter((cust) => !cust.id?.startsWith('CUST-10'));
     } catch {
       this.customers = [...INITIAL_CUSTOMERS];
     }
@@ -126,29 +76,26 @@ class StateStore {
     try {
       const w = localStorage.getItem(STORAGE_KEYS.WORKERS);
       const parsed = w ? JSON.parse(w) : [...INITIAL_WORKERS];
-      this.workers = parsed.map((wrk, idx) => {
-        const init = INITIAL_WORKERS[idx] || {};
-        return {
-          ...init,
-          ...wrk,
-          phone: wrk.phone || init.phone || `98471 2300${idx + 1}`,
-          pendingWages: wrk.pendingWages !== undefined ? wrk.pendingWages : (init.pendingWages !== undefined ? init.pendingWages : 1400)
-        };
-      });
+      this.workers = (Array.isArray(parsed) ? parsed : [])
+        .filter((wrk) => !wrk.id?.startsWith('WRK-0'));
     } catch {
       this.workers = [...INITIAL_WORKERS];
     }
 
     try {
       const d = localStorage.getItem(STORAGE_KEYS.DRIVERS);
-      this.drivers = d ? JSON.parse(d) : [...INITIAL_DRIVERS];
+      const parsed = d ? JSON.parse(d) : [...INITIAL_DRIVERS];
+      this.drivers = (Array.isArray(parsed) ? parsed : [])
+        .filter((drv) => !drv.id?.startsWith('DRV-0'));
     } catch {
       this.drivers = [...INITIAL_DRIVERS];
     }
 
     try {
       const n = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
-      this.notifications = n ? JSON.parse(n) : [...INITIAL_NOTIFICATIONS];
+      const parsed = n ? JSON.parse(n) : [...INITIAL_NOTIFICATIONS];
+      this.notifications = (Array.isArray(parsed) ? parsed : [])
+        .filter((notif) => !notif.id?.startsWith('notif-'));
     } catch {
       this.notifications = [...INITIAL_NOTIFICATIONS];
     }
@@ -174,7 +121,10 @@ class StateStore {
     this.toast = null;
     this.toastTimer = null;
     this.confirmModal = null;
+    this.successModal = null;
     this.isInstallModalOpen = false;
+    this.selectedCustomerId = null;
+    this.selectedWorkerId = null;
   }
 
   subscribe(listener) {
@@ -250,6 +200,8 @@ class StateStore {
 
   setActiveTab(tab) {
     this.activeTab = tab;
+    this.selectedCustomerId = null;
+    this.selectedWorkerId = null;
     if (tab !== 'wages') {
       this.wageSubView = 'overview';
     }
@@ -354,8 +306,27 @@ class StateStore {
     this.notify();
   }
 
+  openConfirmModal(modalConfig) {
+    this.setConfirmModal(modalConfig);
+  }
+
+  showConfirmModal(modalConfig) {
+    this.setConfirmModal(modalConfig);
+  }
+
   closeConfirmModal() {
+    if (!this.confirmModal) return;
     this.confirmModal = null;
+    this.notify();
+  }
+
+  showSuccessModal(config) {
+    this.successModal = config;
+    this.notify();
+  }
+
+  closeSuccessModal() {
+    this.successModal = null;
     this.notify();
   }
 
@@ -390,22 +361,61 @@ class StateStore {
     }
 
     // Update worker pending wages if wage payout
-    if (newTxn.category === 'Staff Wages' && (newTxn.worker || newTxn.workerId)) {
+    if (newTxn.category === 'Staff Wages' && (newTxn.worker || newTxn.workerId || newTxn.workerName)) {
       this.workers = this.workers.map((w) => {
-        if (w.name === newTxn.worker || w.id === newTxn.workerId) {
+        if (w.name === newTxn.worker || w.id === newTxn.workerId || w.name === newTxn.workerName) {
           const amt = Number(newTxn.amount) || 0;
           return {
             ...w,
             pendingWages: Math.max(0, (w.pendingWages || 0) - amt),
-            totalPaid: (w.totalPaid || 0) + amt
+            totalPaid: (w.totalPaid || 0) + amt,
+            lastPaidDate: newTxn.date || getTodayDate()
           };
         }
         return w;
       });
     }
 
+    // Determine success popup configuration
+    const isIncome = newTxn.type === 'income';
+    const isWage = newTxn.category === 'Staff Wages';
+    const isCustomerPayment = newTxn.category === 'Customer Payments' || newTxn.subCategory === 'Due Settlement';
+
+    let title = 'Expense Recorded!';
+    let modalType = 'expense';
+    let subtitle = 'Operating expense successfully logged to ledger';
+
+    if (isWage) {
+      title = 'Wage Payout Recorded!';
+      modalType = 'wage';
+      subtitle = 'Staff compensation disbursed and logged';
+    } else if (isCustomerPayment) {
+      title = 'Payment Received!';
+      modalType = 'payment';
+      subtitle = 'Customer settlement successfully recorded';
+    } else if (isIncome) {
+      title = 'Sale Recorded!';
+      modalType = 'income';
+      subtitle = 'Rubber sale entry saved to ledger';
+    }
+
+    const partyName = newTxn.customerName || newTxn.worker || newTxn.workerName || (newTxn.customerId ? this.customers.find(c => c.id === newTxn.customerId)?.name : null);
+
     this.showToast(`Saved ${newTxn.category} (₹${newTxn.amount.toLocaleString('en-IN')})`);
-    this.notify();
+
+    this.showSuccessModal({
+      type: modalType,
+      title,
+      subtitle,
+      amount: newTxn.amount,
+      category: newTxn.category || 'General',
+      partyName: partyName || null,
+      paymentMode: newTxn.paymentMode || 'Cash',
+      date: newTxn.date || getTodayDate(),
+      id: newTxn.id,
+      notes: newTxn.notes || ''
+    });
+
     return newTxn;
   }
 
@@ -450,7 +460,19 @@ class StateStore {
 
     this.settlingCustomer = null;
     this.showToast(`Recorded ₹${numAmount.toLocaleString('en-IN')} from ${cust.name}`);
-    this.notify();
+
+    this.showSuccessModal({
+      type: 'payment',
+      title: 'Payment Received!',
+      subtitle: `Settlement from ${cust.name} recorded`,
+      amount: numAmount,
+      category: 'Customer Due Settlement',
+      partyName: cust.name,
+      paymentMode,
+      date: txnDate,
+      id: txnId,
+      notes: notes || `Settlement via ${paymentMode}`
+    });
   }
 
   deleteTransaction(txnId) {
@@ -483,11 +505,100 @@ class StateStore {
       });
     }
 
+    // Rollback worker figures if wage payout
+    if (txn.category === 'Staff Wages' && (txn.worker || txn.workerId)) {
+      this.workers = this.workers.map((w) => {
+        if (w.name === txn.worker || w.id === txn.workerId) {
+          const amt = Number(txn.amount) || 0;
+          return {
+            ...w,
+            pendingWages: (w.pendingWages || 0) + amt,
+            totalPaid: Math.max(0, (w.totalPaid || 0) - amt)
+          };
+        }
+        return w;
+      });
+    }
+
     this.transactions = this.transactions.filter((t) => t.id !== txnId);
     if (this.selectedTransaction?.id === txnId) {
       this.selectedTransaction = null;
     }
-    this.showToast(`Deleted ${txn.id}`, 'info');
+    this.showToast(`Deleted ${txn.category || txn.id}`, 'info');
+    this.notify();
+  }
+
+  deleteCustomer(customerId) {
+    const cust = this.customers.find(c => c.id === customerId);
+    if (!cust) return;
+    this.customers = this.customers.filter(c => c.id !== customerId);
+    if (this.selectedCustomerId === customerId) {
+      this.selectedCustomerId = null;
+      this.activeTab = 'customers';
+    }
+    this.showToast(`Deleted customer: ${cust.name}`, 'info');
+    this.notify();
+  }
+
+  deleteWorker(workerId) {
+    const worker = this.workers.find(w => w.id === workerId);
+    if (!worker) return;
+    this.workers = this.workers.filter(w => w.id !== workerId);
+    if (this.selectedWorkerId === workerId) {
+      this.selectedWorkerId = null;
+      this.activeTab = 'employees';
+    }
+    this.showToast(`Deleted employee: ${worker.name}`, 'info');
+    this.notify();
+  }
+
+  viewCustomer(customerId) {
+    this.selectedCustomerId = customerId;
+    this.selectedWorkerId = null;
+    this.activeTab = 'customers';
+    if (window.location.hash !== `#customer/${customerId}`) {
+      try {
+        window.history.pushState(null, '', `#customer/${customerId}`);
+      } catch {
+        window.location.hash = `#customer/${customerId}`;
+      }
+    }
+    this.notify();
+  }
+
+  viewWorker(workerId) {
+    this.selectedWorkerId = workerId;
+    this.selectedCustomerId = null;
+    this.activeTab = 'employees';
+    if (window.location.hash !== `#employee/${workerId}`) {
+      try {
+        window.history.pushState(null, '', `#employee/${workerId}`);
+      } catch {
+        window.location.hash = `#employee/${workerId}`;
+      }
+    }
+    this.notify();
+  }
+
+  clearSelectedCustomer() {
+    this.selectedCustomerId = null;
+    this.activeTab = 'customers';
+    try {
+      window.history.pushState(null, '', '#customers');
+    } catch {
+      window.location.hash = '#customers';
+    }
+    this.notify();
+  }
+
+  clearSelectedWorker() {
+    this.selectedWorkerId = null;
+    this.activeTab = 'employees';
+    try {
+      window.history.pushState(null, '', '#employees');
+    } catch {
+      window.location.hash = '#employees';
+    }
     this.notify();
   }
 
@@ -529,20 +640,24 @@ class StateStore {
 
   resetToSampleData() {
     this.estate = { ...INITIAL_ESTATE };
-    this.transactions = [...INITIAL_TRANSACTIONS];
-    this.customers = [...INITIAL_CUSTOMERS];
-    this.workers = [...INITIAL_WORKERS];
-    this.drivers = [...INITIAL_DRIVERS];
+    this.transactions = [];
+    this.customers = [];
+    this.workers = [];
+    this.drivers = [];
+    this.notifications = [];
     this.save();
-    this.showToast('Reset to demo estate records successfully');
+    this.showToast('Reset estate to clean state');
     this.notify();
   }
 
   clearAllData() {
     this.transactions = [];
-    this.customers = this.customers.map((c) => ({ ...c, totalBilled: 0, amountReceived: 0, outstandingDue: 0 }));
+    this.customers = [];
+    this.workers = [];
+    this.drivers = [];
+    this.notifications = [];
     this.save();
-    this.showToast('Cleared all transaction ledger records', 'info');
+    this.showToast('Cleared all records permanently', 'info');
     this.notify();
   }
 

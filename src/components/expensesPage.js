@@ -166,7 +166,11 @@ export function renderExpensesPage() {
         </span>
 
         <div class="space-y-2">
-          ${expenseTxns.slice(0, 5).map((txn) => {
+          ${expenseTxns.length === 0 ? `
+            <div class="p-8 text-center rounded-2xl bg-white border border-slate-100 text-slate-400 text-xs">
+              No operational expenses recorded yet.
+            </div>
+          ` : expenseTxns.slice(0, 5).map((txn) => {
             let catIcon = icons.arrowUp("w-4 h-4 text-slate-700 stroke-[2.5]");
             let iconClass = 'bg-slate-100 text-slate-700 border-slate-200/70';
 
