@@ -261,63 +261,6 @@ export function renderDashboard() {
         </button>
       </div>
 
-      <!-- Quick Buyer Avatars Row (Phone 1 Aesthetic) -->
-      <div class="space-y-1.5 pt-1">
-        <div class="flex items-center justify-between px-1">
-          <span class="text-[11px] font-black text-slate-400 uppercase tracking-wider">
-            Buyers & Transfer
-          </span>
-          <button id="btn-home-view-all-buyers" class="text-[11px] font-bold text-slate-700 hover:underline cursor-pointer">
-            View All (${store.customers.length})
-          </button>
-        </div>
-
-        <div class="flex items-center space-x-3 overflow-x-auto no-scrollbar py-1.5 px-1">
-          <!-- [+ Add Buyer] -->
-          <button
-            id="btn-home-avatar-add-buyer"
-            class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer group active:scale-95 transition-all"
-            title="Add New Customer"
-          >
-            <div class="w-13 h-13 rounded-full border-2 border-dashed border-slate-300 group-hover:border-slate-800 bg-white flex items-center justify-center text-slate-600 group-hover:text-slate-900 shadow-2xs transition-all">
-              ${icons.plus("w-5 h-5 stroke-[2.5]")}
-            </div>
-            <span class="text-[10px] font-bold text-slate-600 truncate max-w-[56px] text-center">Add</span>
-          </button>
-
-          <!-- Buyer Avatar Circles -->
-          ${store.customers.map((c, i) => {
-            const initials = c.name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
-            const hasDues = (c.outstandingDue || 0) > 0;
-            const avatarColors = [
-              'bg-lime-100 text-lime-900 border-lime-300',
-              'bg-rose-100 text-rose-900 border-rose-300',
-              'bg-sky-100 text-sky-900 border-sky-300',
-              'bg-purple-100 text-purple-900 border-purple-300',
-              'bg-amber-100 text-amber-900 border-amber-300'
-            ];
-            const colorCls = avatarColors[i % avatarColors.length];
-            const shortName = c.name.split(' ')[0];
-
-            return `
-              <button
-                data-home-custid="${c.id}"
-                class="btn-home-buyer-avatar flex flex-col items-center space-y-1 shrink-0 cursor-pointer group active:scale-95 transition-all relative"
-                title="${c.name} - ${hasDues ? 'Dues: ' + formatRupee(c.outstandingDue) : 'Cleared'}"
-              >
-                <div class="w-13 h-13 rounded-full ${colorCls} border flex items-center justify-center font-black text-xs shadow-2xs relative">
-                  <span>${initials}</span>
-                  ${hasDues ? `
-                    <span class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-rose-500 border-2 border-white ring-1 ring-rose-200" title="Has pending dues"></span>
-                  ` : ''}
-                </div>
-                <span class="text-[10px] font-bold text-slate-700 truncate max-w-[62px] text-center">${shortName}</span>
-              </button>
-            `;
-          }).join('')}
-        </div>
-      </div>
-
       <!-- Quick Operations Navigation Hub (Phone 3 Soft 4-Color Category Tiles) -->
       <div class="space-y-2 pt-1">
         <div class="flex items-center justify-between px-1">
@@ -596,31 +539,6 @@ export function attachDashboardEvents() {
   if (homeCustBtn) {
     homeCustBtn.onclick = () => store.setActiveTab('customers');
   }
-
-  const homeViewAllBuyers = document.getElementById('btn-home-view-all-buyers');
-  if (homeViewAllBuyers) {
-    homeViewAllBuyers.onclick = () => store.setActiveTab('customers');
-  }
-
-  const homeAddBuyerAvatar = document.getElementById('btn-home-avatar-add-buyer');
-  if (homeAddBuyerAvatar) {
-    homeAddBuyerAvatar.onclick = () => {
-      store.setActiveTab('customers');
-      setTimeout(() => {
-        const addBtn = document.getElementById('btn-customer-open-add');
-        if (addBtn) addBtn.click();
-      }, 50);
-    };
-  }
-
-  document.querySelectorAll('.btn-home-buyer-avatar').forEach((btn) => {
-    btn.onclick = () => {
-      const cid = btn.getAttribute('data-home-custid');
-      if (cid) {
-        store.viewCustomer(cid);
-      }
-    };
-  });
 
   const incomeBtn = document.getElementById('btn-quick-income');
   if (incomeBtn) {
