@@ -335,7 +335,7 @@ export function renderAddBuyerModal() {
             <input
               id="input-buyer-city"
               type="text"
-              placeholder="e.g. Kottayam, Kerala"
+              placeholder="e.g. Alanallur, Palakkad"
               class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-sm font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white transition-all"
             />
           </div>

@@ -1,8 +1,8 @@
 export const INITIAL_ESTATE = {
-  name: "My Rubber Estate",
-  owner: "",
-  location: "",
-  phone: "",
+  name: "Ashraf Rubber Estate",
+  owner: "Ashraf",
+  location: "Alanallur, Palakkad",
+  phone: "+91 98471 23456",
   currency: "INR",
 };
 

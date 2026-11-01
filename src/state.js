@@ -44,7 +44,14 @@ class StateStore {
 
     try {
       const e = localStorage.getItem(STORAGE_KEYS.ESTATE);
-      this.estate = e ? JSON.parse(e) : { ...INITIAL_ESTATE };
+      const parsed = e ? JSON.parse(e) : null;
+      this.estate = {
+        ...INITIAL_ESTATE,
+        ...(parsed || {})
+      };
+      if (!this.estate.owner) this.estate.owner = INITIAL_ESTATE.owner;
+      if (!this.estate.location || this.estate.location.includes("Pala, Kottayam")) this.estate.location = INITIAL_ESTATE.location;
+      if (!this.estate.name || this.estate.name === "My Rubber Estate") this.estate.name = INITIAL_ESTATE.name;
     } catch {
       this.estate = { ...INITIAL_ESTATE };
     }

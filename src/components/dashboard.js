@@ -186,7 +186,7 @@ export function renderDashboard() {
               ${estate.owner}
             </span>
             <span class="text-[10px] font-bold text-slate-600">
-              ${estate.location || 'Pala, Kottayam'}
+              ${estate.location || 'Alanallur, Palakkad'}
             </span>
           </div>
           <span class="text-[10px] font-black text-slate-800 uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/80 border border-slate-200/60 shadow-2xs">

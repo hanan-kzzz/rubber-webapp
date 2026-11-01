@@ -645,7 +645,7 @@ export function renderAddCustomerModal() {
             <input
               id="input-new-cust-city"
               type="text"
-              placeholder="e.g. Kottayam, Pala, Kanjirappally"
+              placeholder="e.g. Alanallur, Mannarkkad, Palakkad"
               value="${customerPageState.newCustCity}"
               class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white"
             />
@@ -943,7 +943,7 @@ export function attachAddCustomerModalEvents() {
         id: newCustId,
         name,
         phone: phone || '',
-        city: city || 'Kottayam',
+        city: city || 'Alanallur',
         totalBilled: openingBal,
         amountReceived: 0,
         outstandingDue: openingBal,
