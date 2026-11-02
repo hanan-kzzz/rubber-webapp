@@ -228,20 +228,20 @@ export function renderDashboard() {
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-          <!-- 1: Employees (Lime Gradient) -->
+          <!-- 1: Employee Wages (Lime Gradient) -->
           <div
             id="btn-home-nav-employees"
             class="p-4 rounded-3xl card-tile-lime text-left active:scale-98 hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[110px] cursor-pointer"
           >
             <div class="flex items-start justify-between">
               <div class="w-10 h-10 rounded-2xl bg-white/80 text-lime-900 flex items-center justify-center font-bold shadow-2xs shrink-0">
-                ${icons.user("w-5 h-5")}
+                ${icons.users("w-5 h-5 text-lime-900 stroke-[2.2]")}
               </div>
-              <span class="text-[10px] font-black text-lime-900/70 uppercase">Staff</span>
+              <span class="text-[10px] font-black text-lime-900/70 uppercase">Wages</span>
             </div>
             <div class="mt-3">
-              <span class="text-xs font-black tracking-tight block text-lime-950">Employees</span>
-              <span class="text-[10px] text-lime-900/75 font-semibold block mt-0.5">${store.workers.length} ${store.workers.length === 1 ? 'employee' : 'employees'}</span>
+              <span class="text-xs font-black tracking-tight block text-lime-950">Employee Wages</span>
+              <span class="text-[10px] text-lime-900/75 font-semibold block mt-0.5">${store.workers.length} ${store.workers.length === 1 ? 'worker' : 'workers'} • Daily payouts</span>
             </div>
           </div>
 
