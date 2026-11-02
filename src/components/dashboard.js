@@ -231,68 +231,68 @@ export function renderDashboard() {
           <!-- 1: Employee Wages (Lime Gradient) -->
           <div
             id="btn-home-nav-employees"
-            class="p-4 rounded-3xl card-tile-lime text-left active:scale-98 hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[110px] cursor-pointer"
+            class="p-4 rounded-3xl card-tile-lime text-left active:scale-98 hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[116px] cursor-pointer"
           >
             <div class="flex items-start justify-between">
-              <div class="w-10 h-10 rounded-2xl bg-white/80 text-lime-900 flex items-center justify-center font-bold shadow-2xs shrink-0">
+              <div class="w-10 h-10 rounded-2xl bg-white text-lime-900 flex items-center justify-center font-bold shadow-xs border border-lime-200/80 shrink-0">
                 ${icons.users("w-5 h-5 text-lime-900 stroke-[2.2]")}
               </div>
-              <span class="text-[10px] font-black text-lime-900/70 uppercase">Wages</span>
+              <span class="text-[10px] font-black text-lime-950 uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/75 shadow-2xs">Wages</span>
             </div>
             <div class="mt-3">
               <span class="text-xs font-black tracking-tight block text-lime-950">Employee Wages</span>
-              <span class="text-[10px] text-lime-900/75 font-semibold block mt-0.5">${store.workers.length} ${store.workers.length === 1 ? 'worker' : 'workers'} • Daily payouts</span>
+              <span class="text-[10px] text-lime-950/80 font-bold block mt-0.5">${store.workers.length} ${store.workers.length === 1 ? 'worker' : 'workers'} • Daily payouts</span>
             </div>
           </div>
 
           <!-- 2: Travel & Diesel (Coral Gradient) -->
           <div
             id="btn-home-nav-travel"
-            class="p-4 rounded-3xl card-tile-coral text-left active:scale-98 hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[110px] cursor-pointer"
+            class="p-4 rounded-3xl card-tile-coral text-left active:scale-98 hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[116px] cursor-pointer"
           >
             <div class="flex items-start justify-between">
-              <div class="w-10 h-10 rounded-2xl bg-white/80 text-rose-900 flex items-center justify-center font-bold shadow-2xs shrink-0">
-                ${icons.truck("w-5 h-5")}
+              <div class="w-10 h-10 rounded-2xl bg-white text-rose-900 flex items-center justify-center font-bold shadow-xs border border-rose-200/80 shrink-0">
+                ${icons.truck("w-5 h-5 text-rose-900 stroke-[2.2]")}
               </div>
-              <span class="text-[10px] font-black text-rose-900/70 uppercase">Transit</span>
+              <span class="text-[10px] font-black text-rose-950 uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/75 shadow-2xs">Transit</span>
             </div>
             <div class="mt-3">
               <span class="text-xs font-black tracking-tight block text-rose-950">Travel Expense</span>
-              <span class="text-[10px] text-rose-900/75 font-semibold block mt-0.5">Diesel & pickup</span>
+              <span class="text-[10px] text-rose-950/80 font-bold block mt-0.5">Diesel & pickup</span>
             </div>
           </div>
 
           <!-- 3: Food & Canteen (Blue Gradient) -->
           <div
             id="btn-home-nav-canteen"
-            class="p-4 rounded-3xl card-tile-blue text-left active:scale-98 hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[110px] cursor-pointer"
+            class="p-4 rounded-3xl card-tile-blue text-left active:scale-98 hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[116px] cursor-pointer"
           >
             <div class="flex items-start justify-between">
-              <div class="w-10 h-10 rounded-2xl bg-white/80 text-sky-900 flex items-center justify-center font-bold shadow-2xs shrink-0">
-                ${icons.coffee("w-5 h-5")}
+              <div class="w-10 h-10 rounded-2xl bg-white text-sky-900 flex items-center justify-center font-bold shadow-xs border border-sky-200/80 shrink-0">
+                ${icons.coffee("w-5 h-5 text-sky-900 stroke-[2.2]")}
               </div>
-              <span class="text-[10px] font-black text-sky-900/70 uppercase">Canteen</span>
+              <span class="text-[10px] font-black text-sky-950 uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/75 shadow-2xs">Canteen</span>
             </div>
             <div class="mt-3">
               <span class="text-xs font-black tracking-tight block text-sky-950">Food & Canteen</span>
-              <span class="text-[10px] text-sky-900/75 font-semibold block mt-0.5">Staff tea & meals</span>
+              <span class="text-[10px] text-sky-950/80 font-bold block mt-0.5">Staff tea & meals</span>
             </div>
           </div>
 
           <!-- 4: Customer Directory & Dues (Purple Gradient) -->
           <div
             id="btn-home-nav-customers"
-            class="p-4 rounded-3xl card-tile-purple text-left active:scale-98 hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[110px] cursor-pointer"
+            class="p-4 rounded-3xl card-tile-purple text-left active:scale-98 hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[116px] cursor-pointer"
           >
             <div class="flex items-start justify-between">
-              <div class="w-10 h-10 rounded-2xl bg-white/80 text-purple-900 flex items-center justify-center font-bold shadow-2xs shrink-0">
-                ${icons.users("w-5 h-5")}
+              <div class="w-10 h-10 rounded-2xl bg-white text-purple-900 flex items-center justify-center font-bold shadow-xs border border-purple-200/80 shrink-0">
+                ${icons.users("w-5 h-5 text-purple-900 stroke-[2.2]")}
               </div>
-              <span class="text-[10px] font-black text-purple-900/70 uppercase">Buyers</span>
+              <span class="text-[10px] font-black text-purple-950 uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/75 shadow-2xs">Buyers</span>
             </div>
             <div class="mt-3">
               <span class="text-xs font-black tracking-tight block text-purple-950">Customer Dues</span>
-              <span class="text-[10px] text-purple-900/75 font-semibold block mt-0.5">${store.customers.length} buyers</span>
+              <span class="text-[10px] text-purple-950/80 font-bold block mt-0.5">${store.customers.length} buyers</span>
             </div>
           </div>
         </div>
