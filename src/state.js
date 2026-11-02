@@ -6,6 +6,11 @@ import {
   INITIAL_TRANSACTIONS
 } from './data/initialData.js';
 import { generateTxnId, getTodayDate, getYesterdayDate } from './utils/formatters.js';
+import {
+  pushTransactionToSheet,
+  pushCustomerToSheet,
+  pushWorkerToSheet
+} from './utils/googleSheetsSync.js';
 
 const STORAGE_KEYS = {
   ESTATE: 'rubberflow_estate_v2',
@@ -423,6 +428,13 @@ class StateStore {
       notes: newTxn.notes || ''
     });
 
+    // Auto-sync to connected Google Sheet
+    try {
+      pushTransactionToSheet(newTxn, this.estate?.owner);
+    } catch (e) {
+      console.warn('Sheets sync background error:', e);
+    }
+
     return newTxn;
   }
 
@@ -625,6 +637,7 @@ class StateStore {
     this.customers.push(newCust);
     this.showToast(`Added customer: ${newCust.name}`);
     this.notify();
+    try { pushCustomerToSheet(newCust); } catch {}
     return newCust;
   }
 
@@ -642,6 +655,7 @@ class StateStore {
     this.workers.push(newWorker);
     this.showToast(`Added worker: ${newWorker.name}`);
     this.notify();
+    try { pushWorkerToSheet(newWorker); } catch {}
     return newWorker;
   }
 

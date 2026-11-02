@@ -3,6 +3,14 @@ import { icons } from '../icons.js';
 import { exportRubberLedgerToExcel } from '../utils/excelExport.js';
 import { AI_CFO_PROMPTS } from '../data/aiPrompts.js';
 import { openInstallModal } from './installModal.js';
+import {
+  getSyncUrl,
+  setSyncUrl,
+  isAutoSyncEnabled,
+  setAutoSyncEnabled,
+  syncAllToSheet,
+  testSyncConnection
+} from '../utils/googleSheetsSync.js';
 
 let copiedPromptId = null;
 
@@ -111,7 +119,65 @@ export function renderCfoHub() {
         </div>
       </div>
 
-      <!-- 4. Settings List Rows -->
+      <!-- 4. Google Sheets Cloud Sync Section -->
+      <div class="rounded-2xl bg-white border border-slate-100 shadow-2xs p-4 space-y-3.5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+              ${icons.fileSpreadsheet("w-4 h-4 text-emerald-600")}
+            </div>
+            <div>
+              <h3 class="text-xs font-black text-slate-900 tracking-tight">Google Sheets Cloud Sync</h3>
+              <p class="text-[10px] text-slate-500 font-medium">Rubber Business Ledger • 4 Tabs</p>
+            </div>
+          </div>
+          <a
+            href="https://docs.google.com/spreadsheets/d/1qRVPKZ5W_Y6_VLQxLLL2FRrjijWIRdkQbl0TOA-y6xc/edit?gid=443375059#gid=443375059"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-full transition-colors flex items-center space-x-1"
+          >
+            <span>Open Sheet</span>
+            <span>↗</span>
+          </a>
+        </div>
+
+        <div class="space-y-2 pt-1 border-t border-slate-100">
+          <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+            Apps Script Web App Sync URL
+          </label>
+          <div class="flex space-x-2">
+            <input
+              type="url"
+              id="input-sheets-sync-url"
+              placeholder="https://script.google.com/macros/s/.../exec"
+              value="${getSyncUrl()}"
+              class="flex-1 px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-mono text-slate-800"
+            />
+            <button
+              id="btn-save-sheets-sync"
+              class="px-3.5 py-2 text-xs font-bold bg-slate-900 text-white rounded-xl hover:bg-black active:scale-95 transition-all cursor-pointer shrink-0"
+            >
+              Save & Test
+            </button>
+          </div>
+          <p class="text-[10px] text-slate-400">
+            ${getSyncUrl() ? '<span class="text-emerald-600 font-semibold">● Sync URL configured</span> • New entries automatically save to your Google Sheet.' : 'Enter your Google Apps Script Web App URL to enable automatic cloud sync.'}
+          </p>
+        </div>
+
+        <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+          <button
+            id="btn-push-all-to-sheet"
+            class="w-full py-2.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 rounded-xl active:scale-95 transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+          >
+            ${icons.refresh("w-3.5 h-3.5 text-emerald-700")}
+            <span>Push All Local Data to Google Sheet</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 5. Settings List Rows -->
       <div class="rounded-2xl bg-white border border-slate-100 shadow-2xs divide-y divide-slate-100 overflow-hidden">
         <button
           id="btn-goto-dues-settings"
@@ -169,6 +235,62 @@ export function attachCfoEvents() {
         store.showToast(`Downloaded ${res.fileName}`);
       } else {
         store.showToast(`Export failed: ${res.error}`, 'error');
+      }
+    };
+  }
+
+  // Google Sheets Cloud Sync Save & Test
+  const saveSyncBtn = document.getElementById('btn-save-sheets-sync');
+  const syncUrlInput = document.getElementById('input-sheets-sync-url');
+  if (saveSyncBtn && syncUrlInput) {
+    saveSyncBtn.onclick = async () => {
+      const url = syncUrlInput.value.trim();
+      if (!url) {
+        setSyncUrl('');
+        store.showToast('Google Sheets sync URL removed', 'info');
+        store.notify();
+        return;
+      }
+
+      saveSyncBtn.disabled = true;
+      saveSyncBtn.textContent = 'Testing...';
+      try {
+        await testSyncConnection(url);
+        setSyncUrl(url);
+        store.showToast('Connected to Google Sheet!', 'success');
+        store.notify();
+      } catch (err) {
+        // Save anyway since Google Apps Script often blocks GET CORS
+        setSyncUrl(url);
+        store.showToast('Saved sync URL', 'success');
+        store.notify();
+      } finally {
+        saveSyncBtn.disabled = false;
+        saveSyncBtn.textContent = 'Save & Test';
+      }
+    };
+  }
+
+  // Google Sheets Bulk Push
+  const pushAllBtn = document.getElementById('btn-push-all-to-sheet');
+  if (pushAllBtn) {
+    pushAllBtn.onclick = async () => {
+      const url = getSyncUrl();
+      if (!url) {
+        store.showToast('Please enter Apps Script Web App URL first', 'error');
+        return;
+      }
+
+      pushAllBtn.disabled = true;
+      pushAllBtn.textContent = 'Pushing records...';
+      try {
+        await syncAllToSheet(store);
+        store.showToast('Successfully synced data to Google Sheet!', 'success');
+      } catch (err) {
+        store.showToast(`Sync error: ${err.message}`, 'error');
+      } finally {
+        pushAllBtn.disabled = false;
+        pushAllBtn.innerHTML = `${icons.refresh("w-3.5 h-3.5 text-emerald-700")}<span>Push All Local Data to Google Sheet</span>`;
       }
     };
   }
