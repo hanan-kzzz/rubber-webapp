@@ -1,7 +1,7 @@
 import { store } from '../state.js';
 import { icons } from '../icons.js';
 import { formatRupee, formatDate, formatDateTime } from '../utils/formatters.js';
-import { setExpenseCategoryFilter, setSelectedExpenseCategory } from './expenseEmployeesPage.js';
+import { setExpenseCategoryFilter, setSelectedExpenseCategory, setExpenseEmployeesSubTab } from './expenseEmployeesPage.js';
 import { openInstallModal, isStandaloneApp } from './installModal.js';
 
 function renderTransactionModal() {
@@ -228,20 +228,20 @@ export function renderDashboard() {
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-          <!-- 1: Goods & Acid (Lime Gradient) -->
+          <!-- 1: Employees (Lime Gradient) -->
           <div
-            id="btn-home-nav-goods"
+            id="btn-home-nav-employees"
             class="p-4 rounded-3xl card-tile-lime text-left active:scale-98 hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[110px] cursor-pointer"
           >
             <div class="flex items-start justify-between">
               <div class="w-10 h-10 rounded-2xl bg-white/80 text-lime-900 flex items-center justify-center font-bold shadow-2xs shrink-0">
-                ${icons.leaf("w-5 h-5")}
+                ${icons.user("w-5 h-5")}
               </div>
-              <span class="text-[10px] font-black text-lime-900/70 uppercase">Supplies</span>
+              <span class="text-[10px] font-black text-lime-900/70 uppercase">Staff</span>
             </div>
             <div class="mt-3">
-              <span class="text-xs font-black tracking-tight block text-lime-950">Goods & Acid</span>
-              <span class="text-[10px] text-lime-900/75 font-semibold block mt-0.5">Latex supplies</span>
+              <span class="text-xs font-black tracking-tight block text-lime-950">Employees</span>
+              <span class="text-[10px] text-lime-900/75 font-semibold block mt-0.5">${store.workers.length} ${store.workers.length === 1 ? 'employee' : 'employees'}</span>
             </div>
           </div>
 
@@ -461,12 +461,11 @@ export function attachDashboardEvents() {
     installBanner.onclick = () => openInstallModal();
   }
 
-  const homeGoodsBtn = document.getElementById('btn-home-nav-goods');
-  if (homeGoodsBtn) {
-    homeGoodsBtn.onclick = () => {
-      setSelectedExpenseCategory('Goods Expense');
-      setExpenseCategoryFilter('Goods Expense');
-      store.setActiveTab('expenses');
+  const homeEmployeesBtn = document.getElementById('btn-home-nav-employees') || document.getElementById('btn-home-nav-goods');
+  if (homeEmployeesBtn) {
+    homeEmployeesBtn.onclick = () => {
+      setExpenseEmployeesSubTab('employees');
+      store.setActiveTab('employees');
     };
   }
 
