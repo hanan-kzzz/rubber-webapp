@@ -6,11 +6,13 @@
 const STORAGE_KEY_SYNC_URL = 'rubberflow_sheets_sync_url';
 const STORAGE_KEY_AUTO_SYNC = 'rubberflow_sheets_auto_sync';
 
+export const DEFAULT_SYNC_URL = 'https://script.google.com/macros/s/AKfycbw3GtpARo0lwBknDp9ugot8a7ub8Oh5mfM9K973pc3HnrNNyVeTSVuQboKsyTdQAkmnNw/exec';
+
 export function getSyncUrl() {
   try {
-    return localStorage.getItem(STORAGE_KEY_SYNC_URL) || '';
+    return localStorage.getItem(STORAGE_KEY_SYNC_URL) || DEFAULT_SYNC_URL;
   } catch {
-    return '';
+    return DEFAULT_SYNC_URL;
   }
 }
 

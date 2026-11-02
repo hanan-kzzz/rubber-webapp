@@ -189,9 +189,15 @@ export function renderDashboard() {
               ${estate.location || 'Alanallur, Palakkad'}
             </span>
           </div>
-          <span class="text-[10px] font-black text-slate-800 uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/80 border border-slate-200/60 shadow-2xs">
-            Rubber Pass
-          </span>
+          <div class="flex items-center space-x-1.5">
+            <span class="inline-flex items-center space-x-1 text-[10px] font-black text-emerald-800 uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100/90 border border-emerald-300/80 shadow-2xs" title="Live Google Sheet Sync configured">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+              <span>Live Sync</span>
+            </span>
+            <span class="text-[10px] font-black text-slate-800 uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/80 border border-slate-200/60 shadow-2xs">
+              Rubber Pass
+            </span>
+          </div>
         </div>
       </div>
 
