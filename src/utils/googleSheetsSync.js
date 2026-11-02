@@ -6,11 +6,16 @@
 const STORAGE_KEY_SYNC_URL = 'rubberflow_sheets_sync_url';
 const STORAGE_KEY_AUTO_SYNC = 'rubberflow_sheets_auto_sync';
 
-export const DEFAULT_SYNC_URL = 'https://script.google.com/macros/s/AKfycbw3GtpARo0lwBknDp9ugot8a7ub8Oh5mfM9K973pc3HnrNNyVeTSVuQboKsyTdQAkmnNw/exec';
+export const DEFAULT_SYNC_URL = 'https://script.google.com/macros/s/AKfycbzCA-2veAdwd8L03dVe3u57unav_kCo4IdPFNBZ7Gxr4D3UxKDYGVy1BHIonpVdfJ10FA/exec';
 
 export function getSyncUrl() {
   try {
-    return localStorage.getItem(STORAGE_KEY_SYNC_URL) || DEFAULT_SYNC_URL;
+    const saved = localStorage.getItem(STORAGE_KEY_SYNC_URL);
+    if (!saved || saved.includes('AKfycbw3')) {
+      localStorage.setItem(STORAGE_KEY_SYNC_URL, DEFAULT_SYNC_URL);
+      return DEFAULT_SYNC_URL;
+    }
+    return saved;
   } catch {
     return DEFAULT_SYNC_URL;
   }
